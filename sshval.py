@@ -66,8 +66,7 @@ def fillObs(date_obs,fromt, tot):
     return dmiss
     
 def biasMean(vobs, vmodel):
-    print "model shape", vmodel.shape[0]
-    print "obs shape", vobs.shape[0]
+    
     if vobs.shape[0] != vmodel.shape[0] :
         print "vobs and vmodel should have the same size"
         sys.exit()
@@ -91,10 +90,8 @@ def readObs(station, startdate,enddate,obstyle):
     return vobs
 
 def readExpr(expname,station,startdate,enddate,vobs):
-    print expname
-    
+        
     for model in expname:
-        print model
         dmod  = pd.read_csv(expname[model]["path"])
         date = map(lambda x : str(x), dmod["datetime"].values)
         vm     = pd.Series(dmod[station].values,index=date)
@@ -106,23 +103,18 @@ def readExpr(expname,station,startdate,enddate,vobs):
         
 def readOper(oper,station,startdate,enddate,vobs):
     param   = {'from': startdate, 'too': enddate}
-    print oper.keys()
     for model in oper:
-        print model
         res1   = req.get("http://oceandata.smhi.se/ssh/"+station+"/"+model,params = param)
         doper  = res1.json()
         vm     = pd.DataFrame.from_dict(doper,orient="index")
         voper  = vm["raw"].loc[startdate:enddate].values
         voper  = voper + biasMean(vobs,voper)
-        print type(model)
         clegend.append(oper[model]["title"])
         vexpr.append(voper)
         cstyle.append(oper[model]["style"]) 
 ##############################
 
 def main():
-
-    print readConfig()
 
     station, startdate, enddate, obstyle, expname, oper,tickint = readConfig()
 
@@ -146,6 +138,7 @@ def main():
     ax.set_title(station,fontsize="30")
     ax.xaxis.set_ticks(itick[::tickint])
     ax.xaxis.set_ticklabels(stick[::tickint],rotation="vertical",fontsize="15")
+    print "Creating figure ", "ssh"+station+'.png'
     plt.savefig("ssh"+station+'.png', bbox_inches='tight',dpi=300,facecolor='w',edgecolor='w',orientation='portrait')
     plt.close(1)
 
