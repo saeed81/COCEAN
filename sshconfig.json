@@ -1,0 +1,9 @@
+{
+    "station"  : "barseback",
+    "startdate":"2017100100",
+    "endate"   :"2017102900",
+    "obstyle":"r-",
+    "experiment":{"NS01_GEBCO_6minns_4minh":{"path":"ssh_ns6_minh_4_correct_sss.csv","style":"b-"}},
+    "operational":{"NS01_NEMO":{"title":"NS01_OPER","style":"g-"}},
+    "tickinterval" : 48
+}
