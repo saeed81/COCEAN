@@ -161,7 +161,7 @@ def main():
     for im in range(len(vssh)):
         ax.plot(vssh[im],cstyle[im],lw=0.75)
 
-    ax.legend(clegend, loc="best")
+    ax.legend(clegend, numpoints=1, prop=dict(size='small'),loc="best")
     ax.grid()
     ax.set_title(station,fontsize="30")
     ax.xaxis.set_ticks(itick[::tickint])
