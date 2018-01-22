@@ -5,13 +5,26 @@ import requests as req
 import matplotlib.pyplot as plt
 import json
 import datetime
+from scipy import stats
 reload(sys)
 sys.setdefaultencoding('utf8')
 
 
 clegend = []
-vssh   = []        
+vssh    = []        
 cstyle  = [] 
+rms     = []
+cor     = []  
+
+
+def biasMean(vobs, vmodel):
+    
+    if vobs.shape[0] != vmodel.shape[0] :
+        print "vobs and vmodel should have the same size"
+        sys.exit()
+    
+    return stats.nanmean(vobs- vmodel)
+
 
 def readConfig():
 
@@ -20,7 +33,6 @@ def readConfig():
         sys.exit(1)
         
     config_file = sys.argv[1]
-    """Read and parse config file"""
     if not os.path.isfile(config_file):
         print 'specified config file {} does not exist.'.format(config_file)
         sys.exit(1)
@@ -61,17 +73,11 @@ def fillObs(date_obs,fromt, tot):
     while initd <= totd:
         if strDate(initd) not in date_obs: 
             dmiss[strDate(initd)] = {}
-            dmiss[strDate(initd)]["raw"] = -999.0
+            dmiss[strDate(initd)]["raw"] = np.nan
             
         initd = initd + step
     return dmiss
     
-def biasMean(vobs, vmodel):
-    
-    if vobs.shape[0] != vmodel.shape[0] :
-        print "vobs and vmodel should have the same size"
-        sys.exit()
-    return np.mean(vobs- vmodel)
 
 def readObs(station, startdate,enddate,obstyle):
     param   = {'from': startdate, 'too': enddate}
@@ -83,7 +89,7 @@ def readObs(station, startdate,enddate,obstyle):
         dobs.update(dmiss)
     vo   = pd.DataFrame.from_dict(dobs,orient="index")
     vob  = vo.loc[startdate:enddate].values
-    vobs = np.ma.masked_where(np.array(vob) == -999.0, np.array(vob))
+    vobs = np.squeeze(vob)
     clegend.append("OBSERVATION")
     vssh.append(vobs)
     cstyle.append(obstyle) 
@@ -93,11 +99,17 @@ def readObs(station, startdate,enddate,obstyle):
 def readExpr(expname,station,startdate,enddate,vobs):
         
     for model in expname:
-        dmod  = pd.read_csv(expname[model]["path"])
-        date = map(lambda x : str(x), dmod["datetime"].values)
+        dmod   = pd.read_csv(expname[model]["path"])
+        date   = map(lambda x : str(x), dmod["datetime"].values)
         vm     = pd.Series(dmod[station].values,index=date)
-        vmod  = vm.loc[startdate:enddate].values
-        vmod  = vmod + biasMean(vobs,vmod)
+        vmod   = vm.loc[startdate:enddate].values
+        vmod   = vmod + biasMean(vobs,vmod)
+        lrms   = np.sqrt(((vmod-np.mean(vmod)-vobs+ np.mean(vobs))**2).mean())
+        lcorr  = np.corrcoef(vmod, vobs)[0,1]
+        modstd = np.std(vmod)
+        obstd  = np.std(vobs)
+        rms.append(round(lrms /obstd,3))
+        cor.append(round(lcorr,3))
         clegend.append(model)
         vssh.append(vmod)
         cstyle.append(expname[model]["style"]) 
@@ -110,6 +122,12 @@ def readOper(oper,station,startdate,enddate,vobs):
         vm     = pd.DataFrame.from_dict(doper,orient="index")
         voper  = vm["raw"].loc[startdate:enddate].values
         voper  = voper + biasMean(vobs,voper)
+        lrms   = np.sqrt(((voper-np.mean(voper)-vobs+ np.mean(vobs))**2).mean())
+        lcorr  = np.corrcoef(voper, vobs)[0,1]
+        modstd = np.std(voper)
+        obstd  = np.std(vobs)
+        rms.append(round(lrms /obstd,3))
+        cor.append(round(lcorr,3))
         clegend.append(oper[model]["title"])
         vssh.append(voper)
         cstyle.append(oper[model]["style"]) 
@@ -132,7 +150,7 @@ def main():
     ax.set_ylabel ('SSH(m)',fontsize='20',weight='bold')
 
     for im in range(len(vssh)):
-        ax.plot(vssh[im],cstyle[im])
+        ax.plot(vssh[im],cstyle[im],lw=0.75)
 
     ax.legend(clegend, loc="best")
     ax.grid()
