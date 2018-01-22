@@ -26,6 +26,22 @@ def format_time_string(time_str):
     return datetime.datetime.strptime(time_str, input_format).strftime(output_format)
 
 
+def strDate(day):
+    cyear, cmonth, cday, chour="%04d"%int(day.year),"%02d"%int(day.month),"%02d"%int(day.day),"%02d"%int(day.hour)
+    return "".join([cyear, cmonth, cday,chour])
+
+
+def getDateRange(fromt, tot):
+    initd = datetime.datetime(int(fromt[0:4]),int(fromt[4:6]),int(fromt[6:8]),int(fromt[8:10]))
+    totd  = datetime.datetime(int(tot[0:4]),int(tot[4:6]),int(tot[6:8]),int(tot[8:10]))
+    step  = datetime.timedelta(hours=1)
+    dateticks = []
+    while initd <= totd:
+        dateticks.append(strDate(initd)) 
+        initd = initd + step
+    
+    return dateticks
+
 def biasMean(vobs, vmodel):
     
     if vobs.shape[0] != vmodel.shape[0] :
@@ -57,35 +73,6 @@ def readConfig():
         oper         = cfg["operational"]
         tickint      = cfg["tickinterval_hour"]
         return dovalidation, station, startdate, enddate,obstyle, expname, oper, tickint 
-
-def strDate(day):
-    cyear, cmonth, cday, chour="%04d"%int(day.year),"%02d"%int(day.month),"%02d"%int(day.day),"%02d"%int(day.hour)
-    return "".join([cyear, cmonth, cday,chour])
-
-
-def getDateRange(fromt, tot):
-    initd = datetime.datetime(int(fromt[0:4]),int(fromt[4:6]),int(fromt[6:8]),int(fromt[8:10]))
-    totd  = datetime.datetime(int(tot[0:4]),int(tot[4:6]),int(tot[6:8]),int(tot[8:10]))
-    step  = datetime.timedelta(hours=1)
-    dateticks = []
-    while initd <= totd:
-        dateticks.append(strDate(initd)) 
-        initd = initd + step
-    
-    return dateticks
-    
-def fillObs(date_obs,fromt, tot):
-    initd = datetime.datetime(int(fromt[0:4]),int(fromt[4:6]),int(fromt[6:8]),int(fromt[8:10]))
-    totd  = datetime.datetime(int(tot[0:4]),int(tot[4:6]),int(tot[6:8]),int(tot[8:10]))
-    step  = datetime.timedelta(hours=1)
-    dmiss = {}
-    while initd <= totd:
-        if strDate(initd) not in date_obs: 
-            dmiss[strDate(initd)] = {}
-            dmiss[strDate(initd)]["raw"] = np.nan
-            
-        initd = initd + step
-    return dmiss
     
 
 def readObs(station, startdate,enddate,obstyle):
@@ -105,6 +92,20 @@ def readObs(station, startdate,enddate,obstyle):
         
     return vobs
 
+
+def fillObs(date_obs,fromt, tot):
+    initd = datetime.datetime(int(fromt[0:4]),int(fromt[4:6]),int(fromt[6:8]),int(fromt[8:10]))
+    totd  = datetime.datetime(int(tot[0:4]),int(tot[4:6]),int(tot[6:8]),int(tot[8:10]))
+    step  = datetime.timedelta(hours=1)
+    dmiss = {}
+    while initd <= totd:
+        if strDate(initd) not in date_obs: 
+            dmiss[strDate(initd)] = {}
+            dmiss[strDate(initd)]["raw"] = np.nan
+            
+        initd = initd + step
+    return dmiss
+    
 def readExpr(expname,station,startdate,enddate,vobs):
         
     for model in expname:
@@ -152,7 +153,8 @@ def main():
 
     stick = getDateRange(startdate,enddate)
     itick = range(len(stick))
-    
+    iitick=itick[::tickint]
+
     fig=plt.figure(num=1,figsize=(12.0,6.0),dpi=300,facecolor='w',edgecolor='k')
     ax = fig.add_axes([0.08, 0.08, 0.8, 0.8], axisbg = '1.0')
     ax.set_xlabel('Time',fontsize='20',weight='bold')
@@ -165,7 +167,6 @@ def main():
     ax.grid()
     ax.set_title(station,fontsize="30")
     ax.xaxis.set_ticks(itick[::tickint])
-    iitick=itick[::tickint]
     ax.set_xlim(iitick[0],iitick[-1])
     ax.xaxis.set_ticklabels(stick[::tickint],rotation="vertical",fontsize="15")
     print "Creating figure for station", station, " ssh"+station+'.png'
