@@ -9,12 +9,21 @@ from scipy import stats
 reload(sys)
 sys.setdefaultencoding('utf8')
 
-
 clegend = []
 vssh    = []        
 cstyle  = [] 
 rms     = []
 cor     = []  
+
+def format_time_string(time_str):
+    """
+    Converts 2017-10-01 20:00 -> 201710012000
+    """
+    input_format = '%Y-%m-%d %H:%M'
+
+    output_format = '%Y%m%d%H'
+
+    return datetime.datetime.strptime(time_str, input_format).strftime(output_format)
 
 
 def biasMean(vobs, vmodel):
@@ -41,8 +50,8 @@ def readConfig():
         cfg = json.load(fptr_cfg)
         dovalidation = cfg["dovalidation"]
         station      = cfg["station"]
-        startdate    = cfg["startdate"]
-        enddate      = cfg["endate"]
+        startdate    = format_time_string(cfg["startdate"])
+        enddate      = format_time_string(cfg["endate"])
         obstyle      = cfg["obstyle"]
         expname      = cfg["experiment"]
         oper         = cfg["operational"]
@@ -156,6 +165,8 @@ def main():
     ax.grid()
     ax.set_title(station,fontsize="30")
     ax.xaxis.set_ticks(itick[::tickint])
+    iitick=itick[::tickint]
+    ax.set_xlim(iitick[0],iitick[-1])
     ax.xaxis.set_ticklabels(stick[::tickint],rotation="vertical",fontsize="15")
     print "Creating figure for station", station, " ssh"+station+'.png'
     plt.savefig("ssh"+station+'.png', bbox_inches='tight',dpi=300,facecolor='w',edgecolor='w',orientation='portrait')
