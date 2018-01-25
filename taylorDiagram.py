@@ -1,75 +1,73 @@
-import numpy as np
-import matplotlib.pyplot as plt
-import math
+def TaylorDiagram(RMSVEC, CORVEC,COLORVEC,LABELVEC, station, info):
+    import numpy as np
+    import matplotlib.pyplot as plt
+    import math
 
-#matplotlib.rcParams['xtick.direction'] = 'out'
-#matplotlib.rcParams['ytick.direction'] = 'out'
-#plt.tick_params(axis="y", labelcolor="b")
+    rms_max = float(math.ceil(max(RMSVEC)))
+    if rms_max <= 1.0:                    delta = 0.2  
+    if rms_max >= 2.0 and rms_max <= 3.0: delta = 0.25  
+    if rms_max >=4 and rms_max <= 5.0:    delta = 0.5  
+    if rms_max >=6 and rms_max <= 7.0:    delta = 0.5  
+    if rms_max >=8 and rms_max <= 9.0:    delta = 1.0  
+    if rms_max >=10:                      delta = 1.0  
+    
+    X=np.arange(0.0,rms_max+delta/100.0,delta/100.0)
+    Y=np.arange(0.0,rms_max+delta/100.0,delta/100.0)
+    nx=X.shape[0]
+    ny=Y.shape[0]
+    h = np.zeros((ny,nx),dtype=np.float32)
+    for j in range(ny):
+        for i in range(nx):
+            h[j,i] = math.sqrt(X[i] * X[i] + Y[j] * Y[j])
 
-X=np.arange(0.0,1.1,0.01)
-Y=np.arange(0.0,1.1,0.01)
+    fig=plt.figure(num=1,figsize=(9.0,9.0),dpi=300,facecolor='w',edgecolor='k')
+    ax = fig.add_axes([0.08, 0.08, 0.8, 0.8], axisbg = '1.0')
+    ax.set_xlabel('RMS/OBS_STD',fontsize='15',weight='bold',color="green")
+    ax.set_ylabel('RMS/OBS_STD',fontsize='15',weight='bold',color="green")
+    ax.grid(False)
+    
+    vc=np.arange(0.0,rms_max+delta,delta)
 
-print X.shape 
+    ax.contour(X,Y,h,vc,colors='0.5',linewidths=0.2)
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.set_xlim(0.0,rms_max + 0.005)
+    ax.set_ylim(0.0,rms_max + 0.005)
+    ax.yaxis.set_ticks_position('left')
+    ax.xaxis.set_ticks_position('bottom')
 
-print Y.shape
+    radius = np.arange(0.0,rms_max + delta,delta)
+    xangle = list(np.arange(0.0,0.9,0.10)) + [0.9, 0.95, 0.99]
+    
+    for rd in radius:  
+        for ang in xangle:
+            ax.plot([0.0,rd*ang],[0.0,rd*math.sqrt(1.0 - (ang * ang))],color="0.5",ls="-",lw="0.10")
+            if rd == rms_max and ang > 0.0: ax.text(rd*ang, rd*math.sqrt(1.0 - (ang * ang)), str(ang),fontsize=10) 
+                
+    ang = 0.65
+    ax.text((1.040)*rms_max*ang, (1.04)*rms_max*math.sqrt(1.0 - (ang * ang)), "Correlation",color="Steelblue",fontsize=20,rotation=-45)
 
-nx=X.shape[0]
-ny=Y.shape[0]
+    lenm = len(RMSVEC) 
+    
+    print "lenm", lenm
 
-h = np.zeros((ny,nx),dtype=np.float32)
+    for ii in range(lenm):
+        vrms, vcor, vcol, vlab =  RMSVEC[ii], CORVEC[ii], COLORVEC[ii],LABELVEC[ii]
+        print vrms, vcor, vcol, vlab
+        ax.plot(vrms*vcor,vrms*math.sqrt(1.0 - (vcor * vcor)),'o',color=vcol, label=vlab,ms=8)
 
-for j in range(ny):
-    for i in range(nx):
-        h[j,i] = math.sqrt(X[i] * X[i] + Y[j] * Y[j])
+    ax.legend(numpoints=1,loc = 'best',prop=dict(size='small'),fontsize=12)
+    ax.set_title(station+" "+info,fontsize="20")
+    plt.savefig("taylor"+station+".pdf", bbox_inches='tight',dpi=300,facecolor='w',edgecolor='w',orientation='portrait')
+    plt.close(1)
 
-fig=plt.figure(num=1,figsize=(3.0,3.0),dpi=300,facecolor='w',edgecolor='k')
-ax = fig.add_axes([0.08, 0.08, 0.8, 0.8], axisbg = '1.0')
-ax.set_xlabel('RMS/OBS_STD',fontsize='5',weight='bold')
-ax.set_ylabel ('RMS/OBS_STD',fontsize='5',weight='bold')
-ax.grid(False)
-vc=np.arange(0.0,1.2,0.2)
 
-ax.contour(X,Y,h,vc,colors='0.5',linewidths=0.2)
-ax.spines['top'].set_visible(False)
-ax.spines['right'].set_visible(False)
-ax.set_xlim(0.0,1.005)
-ax.set_ylim(0.0,1.005)
-ax.yaxis.set_ticks_position('left')
-ax.xaxis.set_ticks_position('bottom')
+def main():
+    rms = [0.4,2.4,2.1,2.9]
+    cor = [0.5,0.25,0.76,0.24]
+    lab = ["exp1","exp2","exp3","exp4"]
+    col = ["b","g","r","k"]
+    TaylorDiagram(RMSVEC=rms, CORVEC=cor,COLORVEC=col,LABELVEC=lab, station="viken")
 
-radius = np.arange(0.0,1.20,0.20)
-xangle = [1.0,0.99,0.95] + list(np.arange(0.9,-0.1,-0.1))
-xangle = list(np.arange(0.0,1.10,0.10))
-
-#print xangle
-
-for ang in xangle:
-    print ang, math.degrees(math.acos(ang))
-nline = 0
-for rd in radius:  
-    for ang in xangle:
-        #print math.cos(math.acos(ang))
-        if ang == 0.99 or ang == 0.95:
-            ax.plot([0.0,rd*math.cos(math.acos(ang))],[0.0,rd*math.sin(math.acos(ang))],'k-',lw="0.0")
-        else:
-            #ax.plot([0.0,rd*math.cos(math.acos(ang))],[0.0,rd*math.sin(math.acos(ang))],'k-',lw="0.25")
-            #ax.plot([0.0,0.0],[rd*math.cos(math.acos(ang)),rd*math.sin(math.acos(ang))],'k-',lw="0.25")
-            #ax.plot([0.0,1.0],[0.0,1.0],'k-',lw="0.25")
-            if nline == 0:
-                nline += 1
-                ax.plot([0.0,rd*ang],[0.0,rd*math.sqrt(1.0 - (ang * ang))],color="0.5",ls="-",label="viken",lw="0.2")
-                if rd == 1.0: ax.annotate(str(ang),  xy=(rd*ang, rd*math.sqrt(1.0 - (ang * ang))))
-            else:
-                nline += 1
-                ax.plot([0.0,rd*ang],[0.0,rd*math.sqrt(1.0 - (ang * ang))],color="0.5",ls="-",lw="0.2")
-                if rd == 1.0 and ang > 0.0: ax.annotate(str(ang),  xy=(rd*ang, rd*math.sqrt(1.0 - (ang * ang))))
-
-ax.plot(0.2*math.cos(math.acos(0.5)),0.2*math.sin(math.acos(0.5)),'ob',ms=3)
-
-#ax.legend(numpoints=1,prop=dict(size='xx-small'),loc = 'upper right', bbox_to_anchor = (0.5, 0.5))
-ax.legend(numpoints=1,prop=dict(size='xx-small'),loc = 'best')
-
-plt.savefig("taylor.png", bbox_inches='tight',dpi=300,facecolor='w',edgecolor='w',orientation='portrait')
-
-plt.close(1)
-
+if __name__ == "__main__":main()
+    

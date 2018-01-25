@@ -5,13 +5,14 @@ import requests as req
 import matplotlib.pyplot as plt
 import json
 import datetime
-from scipy import stats
+from taylorDiagram import TaylorDiagram
 reload(sys)
 sys.setdefaultencoding('utf8')
 
 clegend = []
 vssh    = []        
 cstyle  = [] 
+ccolor  = [] 
 rms     = []
 cor     = []  
 
@@ -20,11 +21,9 @@ def format_time_string(time_str):
     Converts 2017-10-01 20:00 -> 201710012000
     """
     input_format = '%Y-%m-%d %H:%M'
-
     output_format = '%Y%m%d%H'
 
     return datetime.datetime.strptime(time_str, input_format).strftime(output_format)
-
 
 def strDate(day):
     cyear, cmonth, cday, chour="%04d"%int(day.year),"%02d"%int(day.month),"%02d"%int(day.day),"%02d"%int(day.hour)
@@ -42,13 +41,30 @@ def getDateRange(fromt, tot):
     
     return dateticks
 
+
+def fillObs(date_obs,fromt, tot):
+    initd = datetime.datetime(int(fromt[0:4]),int(fromt[4:6]),int(fromt[6:8]),int(fromt[8:10]))
+    totd  = datetime.datetime(int(tot[0:4]),int(tot[4:6]),int(tot[6:8]),int(tot[8:10]))
+    step  = datetime.timedelta(hours=1)
+    dmiss = {}
+    dmcor = {}
+    while initd <= totd:
+        if strDate(initd) not in date_obs: 
+            dmiss[strDate(initd)] = {}
+            dmcor[strDate(initd)] = {}
+            dmcor[strDate(initd)]["raw"] = -999.0
+            dmiss[strDate(initd)]["raw"] = np.nan
+                        
+        initd = initd + step
+    return dmcor
+
 def biasMean(vobs, vmodel):
     
     if vobs.shape[0] != vmodel.shape[0] :
         print "vobs and vmodel should have the same size"
         sys.exit()
     
-    return stats.nanmean(vobs- vmodel)
+    return np.mean(vobs- vmodel)
 
 
 def readConfig():
@@ -78,78 +94,71 @@ def readConfig():
 def readObs(station, startdate,enddate,obstyle):
     param   = {'from': startdate, 'too': enddate}
     res    = req.get("http://oceandata.smhi.se/ssh/"+station+"/OBSERVATION",params = param)
-    dobs     = res.json()
+    dobs   = res.json()
     date_obs = dobs.keys()
-    dmiss=fillObs(date_obs,startdate, enddate)
+    dmiss = fillObs(date_obs,startdate, enddate)
     if dmiss.keys():
         dobs.update(dmiss)
-    vo   = pd.DataFrame.from_dict(dobs,orient="index")
-    vob  = vo.loc[startdate:enddate].values
-    vobs = np.squeeze(vob)
-    clegend.append("OBSERVATION")
-    vssh.append(vobs)
-    cstyle.append(obstyle) 
-        
-    return vobs
-
-
-def fillObs(date_obs,fromt, tot):
-    initd = datetime.datetime(int(fromt[0:4]),int(fromt[4:6]),int(fromt[6:8]),int(fromt[8:10]))
-    totd  = datetime.datetime(int(tot[0:4]),int(tot[4:6]),int(tot[6:8]),int(tot[8:10]))
-    step  = datetime.timedelta(hours=1)
-    dmiss = {}
-    while initd <= totd:
-        if strDate(initd) not in date_obs: 
-            dmiss[strDate(initd)] = {}
-            dmiss[strDate(initd)]["raw"] = np.nan
-            
-        initd = initd + step
-    return dmiss
     
-def readExpr(expname,station,startdate,enddate,vobs):
+    voc   = pd.DataFrame.from_dict(dobs,orient="index")
+    vobc  = voc.loc[startdate:enddate].values
+    vobsc = np.squeeze(vobc)
+    vobsm = np.ma.masked_where(vobsc==-999.0,vobsc)
+    clegend.append("OBSERVATION")
+    vssh.append(vobsm)
+    cstyle.append(obstyle["line"]) 
+    ccolor.append(obstyle["color"]) 
+        
+    return vobsm
+    
+def readExpr(expname,station,startdate,enddate,vobsm):
         
     for model in expname:
         dmod   = pd.read_csv(expname[model]["path"])
         date   = map(lambda x : str(x), dmod["datetime"].values)
         vm     = pd.Series(dmod[station].values,index=date)
         vmod   = vm.loc[startdate:enddate].values
-        vmod   = vmod + biasMean(vobs,vmod)
-        lrms   = np.sqrt(((vmod-np.mean(vmod)-vobs+ np.mean(vobs))**2).mean())
-        lcorr  = np.corrcoef(vmod, vobs)[0,1]
-        modstd = np.std(vmod)
-        obstd  = np.std(vobs)
+        vmod   = vmod + biasMean(vobsm,vmod)
+        lcorr  = np.ma.corrcoef(vmod, vobsm)[0,1]
+        lrms   = np.sqrt(np.mean((vmod - vobsm)**2),dtype=np.float64)
+        lrms   = np.sqrt(((vmod-np.mean(vmod)-vobsm+ np.mean(vobsm))**2).mean())
+        obstd  = np.std(vobsm)
         rms.append(round(lrms /obstd,3))
         cor.append(round(lcorr,3))
+        print "sation", station," GEBCO", "rms", round(lrms/obstd,3), " cor", round(lcorr,3)
         clegend.append(model)
         vssh.append(vmod)
-        cstyle.append(expname[model]["style"]) 
+        cstyle.append(expname[model]["line"]) 
+        ccolor.append(expname[model]["color"]) 
         
-def readOper(oper,station,startdate,enddate,vobs):
+def readOper(oper,station,startdate,enddate,vobsm):
     param   = {'from': startdate, 'too': enddate}
     for model in oper:
         res1   = req.get("http://oceandata.smhi.se/ssh/"+station+"/"+model,params = param)
         doper  = res1.json()
         vm     = pd.DataFrame.from_dict(doper,orient="index")
         voper  = vm["raw"].loc[startdate:enddate].values
-        voper  = voper + biasMean(vobs,voper)
-        lrms   = np.sqrt(((voper-np.mean(voper)-vobs+ np.mean(vobs))**2).mean())
-        lcorr  = np.corrcoef(voper, vobs)[0,1]
-        modstd = np.std(voper)
-        obstd  = np.std(vobs)
+        voper  = voper + biasMean(vobsm,voper)
+        lcorr  = np.ma.corrcoef(voper, vobsm)[0,1]
+        lrms   = np.sqrt(np.mean((voper - vobsm)**2),dtype=np.float64)
+        lrms   = np.sqrt(((voper-np.mean(voper)-vobsm+ np.mean(vobsm))**2).mean())
+        obstd  = np.std(vobsm)
         rms.append(round(lrms /obstd,3))
         cor.append(round(lcorr,3))
+        print "sation", station," OPER", "rms", round(lrms /obstd,3), " cor", round(lcorr,3)
         clegend.append(oper[model]["title"])
         vssh.append(voper)
-        cstyle.append(oper[model]["style"]) 
+        cstyle.append(oper[model]["line"])
+        ccolor.append(oper[model]["color"])
 ##############################
 
 def main():
 
     dovalidation, station, startdate, enddate, obstyle, expname, oper,tickint = readConfig()
 
-    vobs = readObs(station, startdate, enddate,obstyle)
-    if dovalidation["experiment"]  :readExpr(expname,station,startdate,enddate,vobs)
-    if dovalidation["operational"] :readOper(oper,station,startdate,enddate,vobs)
+    vobsm = readObs(station, startdate, enddate,obstyle)
+    if dovalidation["experiment"]  :readExpr(expname,station,startdate,enddate,vobsm)
+    if dovalidation["operational"] :readOper(oper,station,startdate,enddate,vobsm)
 
     stick = getDateRange(startdate,enddate)
     itick = range(len(stick))
@@ -161,7 +170,7 @@ def main():
     ax.set_ylabel ('SSH(m)',fontsize='20',weight='bold')
 
     for im in range(len(vssh)):
-        ax.plot(vssh[im],cstyle[im],lw=0.75)
+        ax.plot(vssh[im],linestyle=cstyle[im],color=ccolor[im],lw=0.75)
 
     ax.legend(clegend, numpoints=1, prop=dict(size='small'),loc="best")
     ax.grid()
@@ -173,5 +182,14 @@ def main():
     plt.savefig("ssh"+station+'.png', bbox_inches='tight',dpi=300,facecolor='w',edgecolor='w',orientation='portrait')
     plt.close(1)
 
+
+    print ccolor[1:]
+    print clegend[1:]
+    print cor[:]
+    print ccolor[:]
+    print clegend[1:]
+    TaylorDiagram(RMSVEC=rms[:], CORVEC=cor[:],COLORVEC=ccolor[1:],LABELVEC=clegend[1:], station=station, info=startdate+"-"+enddate)
+
+        
 if __name__ == "__main__":
     main()
