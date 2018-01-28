@@ -78,7 +78,7 @@ int main(int argc, char *argv[]){
     }
   }
 
-  printf("number of fields is %d \n", nfl);
+  //printf("number of fields is %d \n", nfl);
 
   rewind(FS);
 
@@ -91,7 +91,6 @@ int main(int argc, char *argv[]){
   while ((cc=fgetc(FS)) != EOF){
     if (cc != ','){
       if(cc=='\n'){
-	printf("=================end of line =========================\n");
 	ne = 0;
 	nl += 1;
 	if (nl == 1) break;
@@ -104,7 +103,7 @@ int main(int argc, char *argv[]){
     else{
       cfl[nfl] = malloc(sizeof(char) *ne);
       for(int ii=0; ii < ne; ++ii) cfl[nfl][ii] = field[ii];
-      printf("%s \n",cfl[nfl]);
+      //printf("%s \n",cfl[nfl]);
       nfl += 1;
       for(int ii=0; ii < ne; ++ii) field[ii] = ' ';
       ne = 0;
