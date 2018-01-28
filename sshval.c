@@ -16,29 +16,27 @@ long int numLines(FILE *FS){
 
 int Strlen(char *sa){
   int len = 0;
-  while(*sa++) len += 1;
-  
-return len;
+  while(*sa != '\0'){ 
+    len += 1;
+    sa++;
+  }
+  return len;
 }
 
 int Strcmp(char *sa, char *sb){
   
   if (Strlen(sa) != Strlen(sb)){
-    //printf("input strings are not of the same size\n");
     return 0;
   }
   while ((*sa == *sb) && *sa != '\0' && *sb != '\0' ){
-    //printf("%c\t%c\n",*sa,*sb);
     sa++;
     sb++;
   }
   
   if (*sa == '\0'){
-    //printf("string sa reached its end so it means that sa is equal sb\n");
     return 1;
   }
   else{
-    //printf("search ended at %c\n",*sa);
     return 0;
   }
 }
@@ -62,7 +60,6 @@ int main(void){
   while ((cc=fgetc(FS)) != EOF){
     if (cc != ','){
       if(cc=='\n'){
-	//printf("=================end of line =========================\n");
 	nl += 1;
 	if (nl == 1) break;
       }
@@ -105,17 +102,20 @@ int main(void){
     }
   }
 
+  for(int ii=0; ii < 128; ++ii) field[ii] = ' ';
+
   //now we read date time;
   ne = 0;
   int ifld = 0;
+  float *content = malloc(sizeof(float) *(nline -1));
+  nl = 0;
   for (int i=0; i < nfl; ++i){
-    if (Strcmp(cfl[i],"aberdeen")){
+    if (Strcmp(cfl[i],"ystad_sjov")){
       int ic = i;
       printf("%d \t %s\n",i,cfl[i]);
       while ((cc=fgetc(FS)) != EOF){
 	if (cc != ','){
 	  if(cc=='\n'){
-	    //printf("=================end of line =========================\n");
 	    ne = 0;
 	    nl += 1;
 	    ifld = 0;
@@ -125,7 +125,10 @@ int main(void){
 	  }
 	}
 	else{
-	  if (ic == ifld ) printf("%s\n",field);
+	  if (ic == ifld ) {
+	    content[nl] = atof(field);
+	    printf("%f\n",atof(field));
+	  }
 	  ifld += 1;
 	  ne=0;
 	}
@@ -134,7 +137,13 @@ int main(void){
   }
   fclose(FS);
   
+  for(int i=0; i < (nline-1);++i){
+   printf("%f\n",content[i]);
+  }
+
   free(cfl);
   
+  free(content);
+
   return 0;
 }
