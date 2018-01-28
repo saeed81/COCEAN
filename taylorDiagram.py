@@ -22,8 +22,8 @@ def TaylorDiagram(RMSVEC, CORVEC,COLORVEC,LABELVEC, station, info):
 
     fig=plt.figure(num=1,figsize=(9.0,9.0),dpi=300,facecolor='w',edgecolor='k')
     ax = fig.add_axes([0.08, 0.08, 0.8, 0.8], axisbg = '1.0')
-    ax.set_xlabel('RMS/OBS_STD',fontsize='15',weight='bold',color="green")
-    ax.set_ylabel('RMS/OBS_STD',fontsize='15',weight='bold',color="green")
+    ax.set_xlabel('RMSE/STD_OBS',fontsize='15',weight='bold',color="green")
+    ax.set_ylabel('RMSE/STD_OBS',fontsize='15',weight='bold',color="green")
     ax.grid(False)
     
     vc=np.arange(0.0,rms_max+delta,delta)
@@ -49,12 +49,13 @@ def TaylorDiagram(RMSVEC, CORVEC,COLORVEC,LABELVEC, station, info):
 
     lenm = len(RMSVEC) 
     
-    print "lenm", lenm
-
     for ii in range(lenm):
         vrms, vcor, vcol, vlab =  RMSVEC[ii], CORVEC[ii], COLORVEC[ii],LABELVEC[ii]
-        print vrms, vcor, vcol, vlab
-        ax.plot(vrms*vcor,vrms*math.sqrt(1.0 - (vcor * vcor)),'o',color=vcol, label=vlab,ms=8)
+        if ii == 0 : 
+            #line, = ax.plot(vrms*vcor,vrms*math.sqrt(1.0 - (vcor * vcor)),'o',color=vcol, label=vlab,ms=8)
+            #line.set_clip_on(False)
+            ax.text(rms_max/10.0, -rms_max/8.0, "STD_OBS  "+str(vrms),color="red",fontsize=12,rotation=0)
+        else:ax.plot(vrms*vcor,vrms*math.sqrt(1.0 - (vcor * vcor)),'o',color=vcol, label=vlab,ms=8)
 
     ax.legend(numpoints=1,loc = 'best',prop=dict(size='small'),fontsize=12)
     ax.set_title(station+" "+info,fontsize="20")
