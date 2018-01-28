@@ -8,7 +8,6 @@ long int numLines(FILE *FS){
   while((c=getc(FS)) != EOF){
     if (c=='\n'){
       nl += 1;
-      //printf("line %ld \n",nl);
     }
   }
   rewind(FS);
@@ -19,11 +18,10 @@ int Strlen(char *sa){
   int len = 0;
   while(*sa++) len += 1;
   
-  return len;
+return len;
 }
 
 int Strcmp(char *sa, char *sb){
-
   
   if (Strlen(sa) != Strlen(sb)){
     //printf("input strings are not of the same size\n");
@@ -47,63 +45,42 @@ int Strcmp(char *sa, char *sb){
 
 int main(void){
   
-  
-  char fname[]  = "saeee";
-  char fullname[] = "saeed";
-  char *lastname  = "sblahat";
-
-  //printf("len is %d\n",Strlen(fname));
-  //printf("len is %d\n",Strlen(fullname));
-
-  Strcmp(fname,fullname);
-  Strcmp(lastname,fullname);
-
   FILE *FS = NULL;
   FS = fopen("ssh_ns6_minh_4.csv","r");
   if (FS == NULL){
     printf("error in opening the file \n");
     return 1;
   }
-
   long int nline = numLines(FS);
-  //printf("number of lines is %ld \n",nline);
-
+  
   char cc = ' ';
   char field[128] ="";
   int ne = 0;
   int nfl = 0;
   int nl = 0;
-  //Here we read the header
+  //Here we calculate the number of the field
   while ((cc=fgetc(FS)) != EOF){
     if (cc != ','){
       if(cc=='\n'){
 	//printf("=================end of line =========================\n");
-	ne = 0;
 	nl += 1;
 	if (nl == 1) break;
-      }
-      else {
-	field[ne] = cc;
-	ne += 1;
       }
     }
     else{
       nfl += 1;
-      //printf("%s \n",field);
-      for(int ii=0; ii < ne; ++ii) field[ii] = ' ';
-      ne = 0;
-      }
     }
+  }
 
   printf("number of fields is %d \n", nfl);
-
 
   rewind(FS);
 
   char **cfl = malloc(sizeof(char *)*nfl);
+  
   nfl = 0;
-  nl = 0;
-  ne = 0;
+  nl  = 0;
+  ne  = 0;
 
   while ((cc=fgetc(FS)) != EOF){
     if (cc != ','){
@@ -128,41 +105,36 @@ int main(void){
     }
   }
 
-  
   //now we read date time;
-  nfl = 0;
   ne = 0;
+  int ifld = 0;
   for (int i=0; i < nfl; ++i){
-    if (Strcmp(cfl[i],"datetime")){
+    if (Strcmp(cfl[i],"aberdeen")){
+      int ic = i;
       printf("%d \t %s\n",i,cfl[i]);
       while ((cc=fgetc(FS)) != EOF){
 	if (cc != ','){
 	  if(cc=='\n'){
-	    printf("=================end of line =========================\n");
+	    //printf("=================end of line =========================\n");
 	    ne = 0;
 	    nl += 1;
+	    ifld = 0;
 	  }
-	  else {
-	    field[ne] = cc;
-	    ne += 1;
+	  else{
+	    if (ic == ifld ) {field[ne] = cc;ne += 1;}
 	  }
 	}
 	else{
-	  cfl[nfl] = malloc(sizeof(char) *ne);
-	  for(int ii=0; ii < ne; ++ii) cfl[nfl][ii] = field[ii];
-	  printf("%s \n",cfl[nfl]);
-	  nfl += 1;
-      for(int ii=0; ii < ne; ++ii) field[ii] = ' ';
-      ne = 0;
+	  if (ic == ifld ) printf("%s\n",field);
+	  ifld += 1;
+	  ne=0;
+	}
+      }
     }
   }
-
-  }
-
-
   fclose(FS);
-
+  
   free(cfl);
-
+  
   return 0;
 }
