@@ -186,12 +186,7 @@ def main():
     plt.savefig("ssh"+station+'.png', bbox_inches='tight',dpi=300,facecolor='w',edgecolor='w',orientation='portrait')
     plt.close(1)
 
-    print ccolor[1:]
-    print clegend[1:]
-    print cor[:]
-    print ccolor[:]
-    print clegend[1:]
-
+    
     TaylorDiagram(RMSVEC=rms, CORVEC=cor,COLORVEC=ccolor,LABELVEC=clegend, station=station, info=startdate+"-"+enddate)
         
 if __name__ == "__main__":
