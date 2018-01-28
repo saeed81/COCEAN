@@ -1,10 +1,10 @@
 {
     "dovalidation":{"experiment":1,"operational":1},
-    "station"  : "smogen",
-    "startdate":"2017101100",
-    "endate"   :"2017102500",
-    "obstyle":"r-",
-    "experiment":{"NS01_GEBCO_6minns_4minh_correctsss":{"path":"ssh_ns6_minh_4_correct_sss.csv","style":"b-"},"NS01_GEBCO_6minns_4minh_felsss":{"path":"ssh_ns6_minh_4.csv","style":"k-"} },
-    "operational":{"NS01_NEMO":{"title":"NS01_OPER","style":"g-"}},
+    "station"  :"viken",
+    "startdate":"2017-02-01 00:00",
+    "endate"   :"2017-02-28 00:00",
+    "obstyle":{"line":"-","color":"r"},
+    "experiment":{"NS01_GEBCO_hmin_6_long_validation":{"path":"ssh_gebco_hmin_6_feb.csv","line":"-","color":"b"},"NS01_GEBCO_hmin_4_long_validation":{"path":"ssh_gebco_hmin_4_feb.csv","line":"-","color":"yellow"}},
+    "operational":{"NS01_NEMO":{"title":"NS01_OPER","line":"-","color":"g"}},
     "tickinterval_hour" : 24
 }

@@ -104,6 +104,9 @@ def readObs(station, startdate,enddate,obstyle):
     vobc  = voc.loc[startdate:enddate].values
     vobsc = np.squeeze(vobc)
     vobsm = np.ma.masked_where(vobsc==-999.0,vobsc)
+    obstd  = np.std(vobsm)
+    rms.append(round(obstd,3))
+    cor.append(1.0)
     clegend.append("OBSERVATION")
     vssh.append(vobsm)
     cstyle.append(obstyle["line"]) 
@@ -123,9 +126,9 @@ def readExpr(expname,station,startdate,enddate,vobsm):
         lrms   = np.sqrt(np.mean((vmod - vobsm)**2),dtype=np.float64)
         lrms   = np.sqrt(((vmod-np.mean(vmod)-vobsm+ np.mean(vobsm))**2).mean())
         obstd  = np.std(vobsm)
-        rms.append(round(lrms /obstd,3))
+        modstd = np.std(vmod - vobsm)
+        rms.append(round(modstd/obstd,3))
         cor.append(round(lcorr,3))
-        print "sation", station," GEBCO", "rms", round(lrms/obstd,3), " cor", round(lcorr,3)
         clegend.append(model)
         vssh.append(vmod)
         cstyle.append(expname[model]["line"]) 
@@ -142,10 +145,11 @@ def readOper(oper,station,startdate,enddate,vobsm):
         lcorr  = np.ma.corrcoef(voper, vobsm)[0,1]
         lrms   = np.sqrt(np.mean((voper - vobsm)**2),dtype=np.float64)
         lrms   = np.sqrt(((voper-np.mean(voper)-vobsm+ np.mean(vobsm))**2).mean())
+        lrms   = np.sqrt(((voper-vobsm)**2).mean())
+        modstd = np.std(voper - vobsm)
         obstd  = np.std(vobsm)
-        rms.append(round(lrms /obstd,3))
+        rms.append(round(modstd/obstd,3))
         cor.append(round(lcorr,3))
-        print "sation", station," OPER", "rms", round(lrms /obstd,3), " cor", round(lcorr,3)
         clegend.append(oper[model]["title"])
         vssh.append(voper)
         cstyle.append(oper[model]["line"])
@@ -182,14 +186,13 @@ def main():
     plt.savefig("ssh"+station+'.png', bbox_inches='tight',dpi=300,facecolor='w',edgecolor='w',orientation='portrait')
     plt.close(1)
 
-
     print ccolor[1:]
     print clegend[1:]
     print cor[:]
     print ccolor[:]
     print clegend[1:]
-    TaylorDiagram(RMSVEC=rms[:], CORVEC=cor[:],COLORVEC=ccolor[1:],LABELVEC=clegend[1:], station=station, info=startdate+"-"+enddate)
 
+    TaylorDiagram(RMSVEC=rms, CORVEC=cor,COLORVEC=ccolor,LABELVEC=clegend, station=station, info=startdate+"-"+enddate)
         
 if __name__ == "__main__":
     main()
