@@ -2,7 +2,7 @@
 *~
 *pyc
 *png
-*.json
-*.pdf 
-*.out 
-*.sh
+*json
+*pdf 
+*out 
+*sh
