@@ -41,10 +41,19 @@ int Strcmp(char *sa, char *sb){
   }
 }
 
-int main(void){
+int main(int argc, char *argv[]){
   
+  
+  if (argc != 3){
+    printf("Usage %s filename (stationame or datetime)\n",argv[0]);
+    return 1;
+  }
+    
+  char *filename = argv[1];
+  char *station  = argv[2];
+
   FILE *FS = NULL;
-  FS = fopen("ssh_ns6_minh_4.csv","r");
+  FS = fopen(filename,"r");
   if (FS == NULL){
     printf("error in opening the file \n");
     return 1;
@@ -107,11 +116,19 @@ int main(void){
   //now we read date time;
   ne = 0;
   int ifld = 0;
-  float *content = malloc(sizeof(float) *(nline -1));
   nl = 0;
+  int *icontent = NULL;
+  float *fcontent = NULL;
+  int ic = 0;
   for (int i=0; i < nfl; ++i){
-    if (Strcmp(cfl[i],"ystad_sjov")){
-      int ic = i;
+    if (Strcmp(cfl[i],station)){
+      ic = i;
+      if (ic == 0){
+	 icontent = malloc(sizeof(int) *(nline -1));
+      }
+      if (ic > 0) {
+	fcontent = malloc(sizeof(float) *(nline -1));
+      }
       printf("%d \t %s\n",i,cfl[i]);
       while ((cc=fgetc(FS)) != EOF){
 	if (cc != ','){
@@ -126,8 +143,8 @@ int main(void){
 	}
 	else{
 	  if (ic == ifld ) {
-	    content[nl] = atof(field);
-	    printf("%f\n",atof(field));
+	    if (ic == 0)icontent[nl] = atoi(field);
+	    if (ic >  0)fcontent[nl] = atof(field);
 	  }
 	  ifld += 1;
 	  ne=0;
@@ -138,12 +155,14 @@ int main(void){
   fclose(FS);
   
   for(int i=0; i < (nline-1);++i){
-   printf("%f\n",content[i]);
+    if (ic == 0)printf("%d\n",icontent[i]);
+    if (ic > 0)printf("%f\n",fcontent[i]);
   }
 
   free(cfl);
   
-  free(content);
+  if (icontent != NULL )free(icontent);
+  if (fcontent != NULL )free(fcontent);
 
   return 0;
 }
