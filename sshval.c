@@ -45,7 +45,7 @@ int main(int argc, char *argv[]){
   
   
   if (argc != 3){
-    printf("Usage %s filename (stationame or datetime)\n",argv[0]);
+    printf("Usage %s filename (stationame)\n",argv[0]);
     return 1;
   }
     
@@ -65,7 +65,7 @@ int main(int argc, char *argv[]){
   int ne = 0;
   int nfl = 0;
   int nl = 0;
-  //Here we calculate the number of the field
+  //Here we calculate the number of the field from the header
   while ((cc=fgetc(FS)) != EOF){
     if (cc != ','){
       if(cc=='\n'){
@@ -78,7 +78,7 @@ int main(int argc, char *argv[]){
     }
   }
 
-  //printf("number of fields is %d \n", nfl);
+  printf("number of fields is %d \n", nfl);
 
   rewind(FS);
 
@@ -103,14 +103,13 @@ int main(int argc, char *argv[]){
     else{
       cfl[nfl] = malloc(sizeof(char) *ne);
       for(int ii=0; ii < ne; ++ii) cfl[nfl][ii] = field[ii];
-      //printf("%s \n",cfl[nfl]);
       nfl += 1;
-      for(int ii=0; ii < ne; ++ii) field[ii] = ' ';
+      for(int ii=0; ii < 127; ++ii) field[ii] = ' ';
       ne = 0;
     }
   }
 
-  for(int ii=0; ii < 128; ++ii) field[ii] = ' ';
+  for(int ii=0; ii < 127; ++ii) field[ii] = ' ';
 
   //now we read date time;
   ne = 0;
@@ -154,7 +153,7 @@ int main(int argc, char *argv[]){
   fclose(FS);
   
   for(int i=0; i < (nline-1);++i){
-    if (ic == 0)printf("%d\n",icontent[i]);
+    if (ic == 0 && icontent[i] != 0 )printf("%d\n",icontent[i]);
     if (ic > 0)printf("%f\n",fcontent[i]);
   }
 
