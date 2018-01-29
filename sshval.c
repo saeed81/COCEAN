@@ -150,11 +150,15 @@ int main(int argc, char *argv[]){
       }
     }
   }
+
+  if (icontent == NULL && ic == 0) printf("something wrong happend. perhaps the station %s is not in the csv file %s\n",station,filename);
+  if (fcontent == NULL && ic > 0) printf("something wrong happend. perhaps the station %s is not in the csv file %s\n",station,filename);
+  
   fclose(FS);
   
   for(int i=0; i < (nline-1);++i){
-    if (ic == 0 && icontent[i] != 0 )printf("%d\n",icontent[i]);
-    if (ic > 0)printf("%f\n",fcontent[i]);
+    if (icontent != NULL && ic == 0 && icontent[i] != 0 )printf("%d\n",icontent[i]);
+    if (fcontent != NULL && ic > 0)printf("%f\n",fcontent[i]);
   }
 
   free(cfl);
