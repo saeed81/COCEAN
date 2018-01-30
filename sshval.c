@@ -1,6 +1,8 @@
 #include<stdio.h>
 #include<stdlib.h>
 
+#define LF 256
+
 long int numLines(FILE *FS){
 
   long int nl = 0L;
@@ -42,8 +44,7 @@ int Strcmp(char *sa, char *sb){
 }
 
 int main(int argc, char *argv[]){
-  
-  
+    
   if (argc != 3){
     printf("Usage %s filename (stationame)\n",argv[0]);
     return 1;
@@ -55,13 +56,13 @@ int main(int argc, char *argv[]){
   FILE *FS = NULL;
   FS = fopen(filename,"r");
   if (FS == NULL){
-    printf("error in opening the file \n");
+    printf("error in opening the file %s\n", filename);
     return 1;
   }
   long int nline = numLines(FS);
   
   char cc = ' ';
-  char field[128] ="";
+  char field[LF] ="";
   int ne = 0;
   int nfl = 0;
   int nl = 0;
@@ -104,12 +105,12 @@ int main(int argc, char *argv[]){
       cfl[nfl] = malloc(sizeof(char) *ne);
       for(int ii=0; ii < ne; ++ii) cfl[nfl][ii] = field[ii];
       nfl += 1;
-      for(int ii=0; ii < 127; ++ii) field[ii] = ' ';
+      for(int ii=0; ii < (LF-1); ++ii) field[ii] = ' ';
       ne = 0;
     }
   }
 
-  for(int ii=0; ii < 127; ++ii) field[ii] = ' ';
+  for(int ii=0; ii < (LF -1); ++ii) field[ii] = ' ';
 
   //now we read date time;
   ne = 0;
@@ -152,7 +153,7 @@ int main(int argc, char *argv[]){
   }
 
   if (icontent == NULL && ic == 0) printf("something wrong happend. perhaps the station %s is not in the csv file %s\n",station,filename);
-  if (fcontent == NULL && ic > 0) printf("something wrong happend. perhaps the station %s is not in the csv file %s\n",station,filename);
+  if (fcontent == NULL && ic > 0 ) printf("something wrong happend. perhaps the station %s is not in the csv file %s\n",station,filename);
   
   fclose(FS);
   
