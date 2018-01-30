@@ -31,12 +31,11 @@ def TaylorDiagram(RMSVEC, RMSDVEC, CORVEC,COLORVEC,LABELVEC, station, info):
     for j in range(nyy):
         for i in range(nxx):
             if (math.sqrt((XX[i])*(XX[i])+ YY[j]*YY[j]) <= rms_max):hh[j,i] = math.sqrt((XX[i]-RMSVEC[0]) * (XX[i]-RMSVEC[0]) + YY[j] * YY[j])
-            #hh[j,i] = math.sqrt((XX[i]-RMSVEC[0]) * (XX[i]-RMSVEC[0]) + YY[j] * YY[j])
     hh=np.ma.masked_where(hh==-1.0,hh)
     ########################################### 
     fig=plt.figure(num=1,figsize=(9.0,9.0),dpi=300,facecolor='w',edgecolor='k')
     ax = fig.add_axes([0.08, 0.08, 0.8, 0.8], axisbg = '1.0')
-    ax.set_xlabel(' ',fontsize='15',weight='bold',color="green")
+    ax.set_xlabel('Standard Deviation',fontsize='15',weight='bold',color="green")
     ax.set_ylabel('Standard Deviation',fontsize='15',weight='bold',color="green")
     ax.grid(False)
     
@@ -49,8 +48,8 @@ def TaylorDiagram(RMSVEC, RMSDVEC, CORVEC,COLORVEC,LABELVEC, station, info):
     ax.contour(X,Y,h,vc,colors='0.5',linestyles=lines,linewidths=0.2)
     
     vvc=np.arange(0.0,rmsd_max+ddelta,ddelta)
-    ax.contour(XX,YY,hh,vvc,colors='0.5',linestyles="solid",linewidths=0.3)
-    
+    crm=ax.contour(XX,YY,hh,vvc[::2],colors='lightgreen',linestyles="solid",linewidths=1.5)
+    ax.clabel(crm,vvc[::2],inline=1,fontsize=12,colors='k') 
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     ax.set_xlim(0.0,rms_max+delta)
