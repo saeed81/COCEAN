@@ -1,5 +1,6 @@
 #include<stdio.h>
 #include<stdlib.h>
+#include"svg.h"
 
 #define LF 256
 
@@ -162,6 +163,11 @@ int main(int argc, char *argv[]){
     if (fcontent != NULL && ic > 0)printf("%f\n",fcontent[i]);
   }
 
+
+  if (fcontent != NULL && ic > 0){
+    create_svg(fcontent, nline);
+  }
+    
   free(cfl);
   
   if (icontent != NULL )free(icontent);
