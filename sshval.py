@@ -15,7 +15,7 @@ cstyle  = []
 ccolor  = [] 
 rms     = []
 cor     = []  
-
+rmsd    = []
 def format_time_string(time_str):
     """
     Converts 2017-10-01 20:00 -> 201710012000
@@ -80,6 +80,7 @@ def readConfig():
 
     with open(config_file, 'r') as fptr_cfg:
         cfg = json.load(fptr_cfg)
+        server       = cfg["server"]
         dovalidation = cfg["dovalidation"]
         station      = cfg["station"]
         startdate    = format_time_string(cfg["startdate"])
@@ -88,13 +89,15 @@ def readConfig():
         expname      = cfg["experiment"]
         oper         = cfg["operational"]
         tickint      = cfg["tickinterval_hour"]
-        return dovalidation, station, startdate, enddate,obstyle, expname, oper, tickint 
+        return server,dovalidation, station, startdate, enddate,obstyle, expname, oper, tickint 
     
 
-def readObs(station, startdate,enddate,obstyle):
-    param   = {'from': startdate, 'too': enddate}
-    res    = req.get("http://oceandata.smhi.se/ssh/"+station+"/OBSERVATION",params = param)
-    dobs   = res.json()
+def readObs(server,station, startdate,enddate,obstyle):
+    if server["prod"]: param   = {'from': startdate, 'too': enddate}
+    if server["utv"]:param   = {'highfreq':'false','from': startdate, 'too': enddate}
+    if server["prod"]: res     = req.get("http://oceandata.smhi.se/ssh/"+station+"/OBSERVATION",params = param)
+    if server["utv"]:res     = req.get("http://oceandata-utv.smhi.se/ssh/"+station+"/OBSERVATION",params = param)
+    dobs    = res.json()
     date_obs = dobs.keys()
     dmiss = fillObs(date_obs,startdate, enddate)
     if dmiss.keys():
@@ -107,6 +110,7 @@ def readObs(station, startdate,enddate,obstyle):
     obstd  = np.std(vobsm)
     rms.append(round(obstd,3))
     cor.append(1.0)
+    rmsd.append(0.0)
     clegend.append("OBSERVATION")
     vssh.append(vobsm)
     cstyle.append(obstyle["line"]) 
@@ -126,18 +130,22 @@ def readExpr(expname,station,startdate,enddate,vobsm):
         lrms   = np.sqrt(np.mean((vmod - vobsm)**2),dtype=np.float64)
         lrms   = np.sqrt(((vmod-np.mean(vmod)-vobsm+ np.mean(vobsm))**2).mean())
         obstd  = np.std(vobsm)
-        modstd = np.std(vmod - vobsm)
-        rms.append(round(modstd/obstd,3))
+        difstd = np.std(vmod - vobsm)
+        modstd = np.std(vmod)
+        rms.append(round(modstd,3))
         cor.append(round(lcorr,3))
+        rmsd.append(round(difstd,3))
         clegend.append(model)
         vssh.append(vmod)
         cstyle.append(expname[model]["line"]) 
         ccolor.append(expname[model]["color"]) 
         
-def readOper(oper,station,startdate,enddate,vobsm):
-    param   = {'from': startdate, 'too': enddate}
+def readOper(server,oper,station,startdate,enddate,vobsm):
+    if server["prod"]:param   = {'from': startdate, 'too': enddate}
+    if server["utv"]: param   = {'highfreq':'false','from': startdate, 'too': enddate}
     for model in oper:
-        res1   = req.get("http://oceandata.smhi.se/ssh/"+station+"/"+model,params = param)
+        if server["prod"]:res1   = req.get("http://oceandata.smhi.se/ssh/"+station+"/"+model,params = param)
+        if server["utv"]:res1   = req.get("http://oceandata-utv.smhi.se/ssh/"+station+"/"+model,params = param)
         doper  = res1.json()
         vm     = pd.DataFrame.from_dict(doper,orient="index")
         voper  = vm["raw"].loc[startdate:enddate].values
@@ -146,23 +154,24 @@ def readOper(oper,station,startdate,enddate,vobsm):
         lrms   = np.sqrt(np.mean((voper - vobsm)**2),dtype=np.float64)
         lrms   = np.sqrt(((voper-np.mean(voper)-vobsm+ np.mean(vobsm))**2).mean())
         lrms   = np.sqrt(((voper-vobsm)**2).mean())
-        modstd = np.std(voper - vobsm)
+        difstd = np.std(voper - vobsm)
+        modstd = np.std(voper)
         obstd  = np.std(vobsm)
-        rms.append(round(modstd/obstd,3))
+        rms.append(round(modstd,3))
         cor.append(round(lcorr,3))
+        rmsd.append(round(difstd,3))
         clegend.append(oper[model]["title"])
         vssh.append(voper)
         cstyle.append(oper[model]["line"])
         ccolor.append(oper[model]["color"])
 ##############################
-
 def main():
 
-    dovalidation, station, startdate, enddate, obstyle, expname, oper,tickint = readConfig()
+    server,dovalidation, station, startdate, enddate, obstyle, expname, oper,tickint = readConfig()
 
-    vobsm = readObs(station, startdate, enddate,obstyle)
+    vobsm = readObs(server,station, startdate, enddate,obstyle)
     if dovalidation["experiment"]  :readExpr(expname,station,startdate,enddate,vobsm)
-    if dovalidation["operational"] :readOper(oper,station,startdate,enddate,vobsm)
+    if dovalidation["operational"] :readOper(server,oper,station,startdate,enddate,vobsm)
 
     stick = getDateRange(startdate,enddate)
     itick = range(len(stick))
@@ -187,7 +196,7 @@ def main():
     plt.close(1)
 
     
-    TaylorDiagram(RMSVEC=rms, CORVEC=cor,COLORVEC=ccolor,LABELVEC=clegend, station=station, info=startdate+"-"+enddate)
+    TaylorDiagram(RMSVEC=rms, RMSDVEC=rmsd, CORVEC=cor,COLORVEC=ccolor,LABELVEC=clegend, station=station, info=startdate+"-"+enddate)
         
 if __name__ == "__main__":
     main()
