@@ -10,8 +10,8 @@ def TaylorDiagram(RMSVEC, RMSDVEC, CORVEC,COLORVEC,LABELVEC, station, info):
 
     rms_max = max(RMSVEC)
     delta = rms_max/10.0
-    X=np.arange(0.0,rms_max+delta,delta/100.0)
-    Y=np.arange(0.0,rms_max+delta,delta/100.0)
+    X=np.arange(0.0,(1.20)*rms_max+delta/100.0,delta/100.0)
+    Y=np.arange(0.0,(1.20)*rms_max+delta/100.0,delta/100.0)
     nx=X.shape[0]
     ny=Y.shape[0]
     h = np.zeros((ny,nx),dtype=np.float32)
@@ -22,15 +22,15 @@ def TaylorDiagram(RMSVEC, RMSDVEC, CORVEC,COLORVEC,LABELVEC, station, info):
     ##########################################
     rmsd_max = max(RMSDVEC)
     ddelta = rmsd_max/10.0
-    XX=np.arange(0.0,rms_max+delta,delta/100.0)
-    YY=np.arange(0.0,rms_max+delta,delta/100.0)
+    XX=np.arange(0.0,(1.20)*rms_max+delta/100.0,delta/100.0)
+    YY=np.arange(0.0,(1.20)*rms_max+delta/100.0,delta/100.0)
     nxx=XX.shape[0]
     nyy=YY.shape[0]
     hh = np.zeros((nyy,nxx),dtype=np.float32)
     hh[:,:] = -1.0
     for j in range(nyy):
         for i in range(nxx):
-            if (math.sqrt((XX[i])*(XX[i])+ YY[j]*YY[j]) <= rms_max):hh[j,i] = math.sqrt((XX[i]-RMSVEC[0]) * (XX[i]-RMSVEC[0]) + YY[j] * YY[j])
+            if (math.sqrt((XX[i])*(XX[i])+ YY[j]*YY[j]) <= (1.20*rms_max)):hh[j,i] = math.sqrt((XX[i]-RMSVEC[0]) * (XX[i]-RMSVEC[0]) + YY[j] * YY[j])
     hh=np.ma.masked_where(hh==-1.0,hh)
     ########################################### 
     fig=plt.figure(num=1,figsize=(9.0,9.0),dpi=300,facecolor='w',edgecolor='k')
@@ -39,7 +39,7 @@ def TaylorDiagram(RMSVEC, RMSDVEC, CORVEC,COLORVEC,LABELVEC, station, info):
     ax.set_ylabel('Standard Deviation',fontsize='15',weight='bold',color="green")
     ax.grid(False)
     
-    vc=np.arange(0.0,rms_max+delta,delta)
+    vc=np.arange(0.0,(1.20*rms_max)+delta,delta)
     nl, = vc.shape
     lines=[]
     for i in range(nl-1):
@@ -52,12 +52,12 @@ def TaylorDiagram(RMSVEC, RMSDVEC, CORVEC,COLORVEC,LABELVEC, station, info):
     ax.clabel(crm,vvc[::2],inline=1,fontsize=12,colors='k') 
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
-    ax.set_xlim(0.0,rms_max+delta)
-    ax.set_ylim(0.0,rms_max+delta)
+    ax.set_xlim(0.0,(1.25)*rms_max)
+    ax.set_ylim(0.0,(1.25)*rms_max)
     ax.yaxis.set_ticks_position('left')
     ax.xaxis.set_ticks_position('bottom')
 
-    radius = np.arange(0.0,rms_max + delta,delta)
+    radius = np.arange(0.0,(1.20)*rms_max+delta,delta)
     xangle = list(np.arange(0.0,0.9,0.10)) + [0.9, 0.95, 0.99]
     rdmax = np.amax(radius)
 
@@ -67,7 +67,7 @@ def TaylorDiagram(RMSVEC, RMSDVEC, CORVEC,COLORVEC,LABELVEC, station, info):
             if rd == rdmax and ang > 0.0: ax.text(rd*ang, rd*math.sqrt(1.0 - (ang * ang)), str(ang),fontsize=10) 
                 
     ang = 0.65
-    ax.text((1.040)*rms_max*ang, (1.04)*rms_max*math.sqrt(1.0 - (ang * ang)), "Correlation",color="Steelblue",fontsize=20,rotation=-45)
+    ax.text((1.040)*rdmax*ang, (1.04)*rdmax*math.sqrt(1.0 - (ang * ang)), "Correlation",color="Steelblue",fontsize=20,rotation=-45)
 
     lenm = len(RMSVEC) 
     
