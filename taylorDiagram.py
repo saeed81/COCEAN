@@ -61,12 +61,10 @@ def TaylorDiagram(RMSVEC, RMSDVEC, CORVEC,COLORVEC,LABELVEC, station, info):
     radius = np.arange(0.0,(1.20)*rms_max+delta,delta)
     xangle = list(np.arange(0.0,0.9,0.10)) + [0.9, 0.95, 0.99]
     rdmax = np.amax(radius)
-    ############################################
     for rd in radius:  
         for ang in xangle:
             ax.plot([0.0,rd*ang],[0.0,rd*math.sqrt(1.0 - (ang * ang))],color="0.5",ls="-",lw="0.10")
             if rd == rdmax and ang > 0.0: ax.text(rd*ang, rd*math.sqrt(1.0 - (ang * ang)), str(ang),fontsize=10) 
-                
     ############################################
     ang = 0.65
     ax.text((1.040)*rdmax*ang, (1.04)*rdmax*math.sqrt(1.0 - (ang * ang)), "Correlation",color="Steelblue",fontsize=20,rotation=-45)
