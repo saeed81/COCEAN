@@ -38,7 +38,7 @@ def TaylorDiagram(RMSVEC, RMSDVEC, CORVEC,COLORVEC,LABELVEC, station, info):
     ax.set_xlabel('Standard Deviation',fontsize='15',weight='bold',color="green")
     ax.set_ylabel('Standard Deviation',fontsize='15',weight='bold',color="green")
     ax.grid(False)
-    
+    ############################################
     vc=np.arange(0.0,(1.20*rms_max)+delta,delta)
     nl, = vc.shape
     lines=[]
@@ -46,31 +46,32 @@ def TaylorDiagram(RMSVEC, RMSDVEC, CORVEC,COLORVEC,LABELVEC, station, info):
         lines.append("dashed")
     lines.append("solid")
     ax.contour(X,Y,h,vc,colors='0.5',linestyles=lines,linewidths=0.2)
-    
+    ############################################
     vvc=np.arange(0.0,rmsd_max+ddelta,ddelta)
     crm=ax.contour(XX,YY,hh,vvc[::2],colors='lightgreen',linestyles="solid",linewidths=1.5)
-    ax.clabel(crm,vvc[::2],inline=1,fontsize=12,colors='k') 
+    ax.clabel(crm,vvc[::2],inline=1,fontsize=12,colors='k',fmt='%.3f') 
+    ############################################
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     ax.set_xlim(0.0,(1.25)*rms_max)
     ax.set_ylim(0.0,(1.25)*rms_max)
     ax.yaxis.set_ticks_position('left')
     ax.xaxis.set_ticks_position('bottom')
-
+    ############################################
     radius = np.arange(0.0,(1.20)*rms_max+delta,delta)
     xangle = list(np.arange(0.0,0.9,0.10)) + [0.9, 0.95, 0.99]
     rdmax = np.amax(radius)
-
+    ############################################
     for rd in radius:  
         for ang in xangle:
             ax.plot([0.0,rd*ang],[0.0,rd*math.sqrt(1.0 - (ang * ang))],color="0.5",ls="-",lw="0.10")
             if rd == rdmax and ang > 0.0: ax.text(rd*ang, rd*math.sqrt(1.0 - (ang * ang)), str(ang),fontsize=10) 
                 
+    ############################################
     ang = 0.65
     ax.text((1.040)*rdmax*ang, (1.04)*rdmax*math.sqrt(1.0 - (ang * ang)), "Correlation",color="Steelblue",fontsize=20,rotation=-45)
-
+    ############################################
     lenm = len(RMSVEC) 
-    
     for ii in range(lenm):
         vrms, vcor, vcol, vlab =  RMSVEC[ii], CORVEC[ii], COLORVEC[ii],LABELVEC[ii]
         if ii == 0 : 
@@ -83,14 +84,15 @@ def TaylorDiagram(RMSVEC, RMSDVEC, CORVEC,COLORVEC,LABELVEC, station, info):
     ax.set_title(station+" "+info,fontsize="20")
     plt.savefig("taylor"+station+".pdf", bbox_inches='tight',dpi=300,facecolor='w',edgecolor='w',orientation='portrait')
     plt.close(1)
-
+    #############################################
 
 def main():
-    rms = [0.4,2.4,2.1,2.9]
-    cor = [0.5,0.25,0.76,0.24]
-    lab = ["exp1","exp2","exp3","exp4"]
-    col = ["b","g","r","k"]
-    TaylorDiagram(RMSVEC=rms, CORVEC=cor,COLORVEC=col,LABELVEC=lab, station="viken")
+    rms  = [0.4,2.4,2.1,2.9]
+    cor  = [0.5,0.25,0.76,0.24]
+    rmsd = [0.04,0.24,.21,.29]
+    lab  = ["exp1","exp2","exp3","exp4"]
+    col  = ["b","g","r","k"]
+    TaylorDiagram(RMSVEC=rms, RMSDVEC=rmsd, CORVEC=cor,COLORVEC=col,LABELVEC=lab, station="viken")
 
 if __name__ == "__main__":main()
     
