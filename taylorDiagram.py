@@ -7,38 +7,34 @@ def TaylorDiagram(RMSVEC, RMSDVEC, CORVEC,COLORVEC,LABELVEC, station, info):
     print "cor",CORVEC
     print "rms ",RMSVEC 
     print "rmsd",RMSDVEC
-
+    ######################################################
     rms_max = max(RMSVEC)
     delta = rms_max/10.0
+    rmsd_max = max(RMSDVEC)
+    ddelta = rmsd_max/10.0
+    ######################################################
     X=np.arange(0.0,(1.20)*rms_max+delta/100.0,delta/100.0)
     Y=np.arange(0.0,(1.20)*rms_max+delta/100.0,delta/100.0)
     nx=X.shape[0]
     ny=Y.shape[0]
-    h = np.zeros((ny,nx),dtype=np.float32)
+    h  = np.zeros((ny,nx),dtype=np.float32)
+    hh = np.zeros((ny,nx),dtype=np.float32)
     for j in range(ny):
         for i in range(nx):
             h[j,i] = math.sqrt(X[i] * X[i] + Y[j] * Y[j])
-        
-    ##########################################
-    rmsd_max = max(RMSDVEC)
-    ddelta = rmsd_max/10.0
-    XX=np.arange(0.0,(1.20)*rms_max+delta/100.0,delta/100.0)
-    YY=np.arange(0.0,(1.20)*rms_max+delta/100.0,delta/100.0)
-    nxx=XX.shape[0]
-    nyy=YY.shape[0]
-    hh = np.zeros((nyy,nxx),dtype=np.float32)
+    
     hh[:,:] = -1.0
-    for j in range(nyy):
-        for i in range(nxx):
-            if (math.sqrt((XX[i])*(XX[i])+ YY[j]*YY[j]) <= (1.20*rms_max)):hh[j,i] = math.sqrt((XX[i]-RMSVEC[0]) * (XX[i]-RMSVEC[0]) + YY[j] * YY[j])
+    for j in range(ny):
+        for i in range(nx):
+            if (math.sqrt((X[i])*(X[i])+ Y[j]*Y[j]) <= (1.20*rms_max)):hh[j,i] = math.sqrt((X[i]-RMSVEC[0]) * (X[i]-RMSVEC[0]) + Y[j] * Y[j])
     hh=np.ma.masked_where(hh==-1.0,hh)
-    ########################################### 
+    ######################################################
     fig=plt.figure(num=1,figsize=(9.0,9.0),dpi=300,facecolor='w',edgecolor='k')
     ax = fig.add_axes([0.08, 0.08, 0.8, 0.8], axisbg = '1.0')
     ax.set_xlabel('Standard Deviation',fontsize='15',weight='bold',color="green")
     ax.set_ylabel('Standard Deviation',fontsize='15',weight='bold',color="green")
     ax.grid(False)
-    ############################################
+    #######################################################
     vc=np.arange(0.0,(1.20*rms_max)+delta,delta)
     nl, = vc.shape
     lines=[]
@@ -48,8 +44,8 @@ def TaylorDiagram(RMSVEC, RMSDVEC, CORVEC,COLORVEC,LABELVEC, station, info):
     ax.contour(X,Y,h,vc,colors='0.5',linestyles=lines,linewidths=0.2)
     ############################################
     vvc=np.arange(0.0,rmsd_max+ddelta,ddelta)
-    crm=ax.contour(XX,YY,hh,vvc[::2],colors='lightgreen',linestyles="solid",linewidths=1.5)
-    ax.clabel(crm,vvc[::2],inline=1,fontsize=12,colors='k',fmt='%.3f') 
+    crm=ax.contour(X,Y,hh,vvc[::2],colors='lightgreen',linestyles="solid",linewidths=1.5)
+    ax.clabel(crm,vvc[::2],inline=1,fontsize=12,colors='k',fmt='%.2f') 
     ############################################
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
