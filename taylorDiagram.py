@@ -3,10 +3,6 @@ def TaylorDiagram(RMSVEC, RMSDVEC, CORVEC,COLORVEC,LABELVEC, station, info):
     import matplotlib.pyplot as plt
     import math
 
-    print "name",LABELVEC
-    print "cor",CORVEC
-    print "rms ",RMSVEC 
-    print "rmsd",RMSDVEC
     ######################################################
     rms_max  = max(RMSVEC)
     delta    = rms_max/10.0
@@ -15,12 +11,12 @@ def TaylorDiagram(RMSVEC, RMSDVEC, CORVEC,COLORVEC,LABELVEC, station, info):
     ######################################################
     X=np.arange(0.0,(1.20)*rms_max+delta,delta/200.0)
     Y=np.arange(0.0,(1.20)*rms_max+delta,delta/200.0)
-    nx=X.shape[0]
-    ny=Y.shape[0]
+    nx,=X.shape
+    ny,=Y.shape
     XX, YY = np.meshgrid(X,Y)
     h  = np.zeros((ny,nx),dtype=np.float32)
     hh = np.zeros((ny,nx),dtype=np.float32)
-    h  = np.sqrt(XX * XX + YY * YY )
+    h  = np.sqrt(XX * XX + YY * YY)
     hmax = np.amax(h)
     hh[:,:] = -1.0
     hh = np.sqrt((XX-RMSVEC[0])*(XX-RMSVEC[0]) + YY * YY)
@@ -55,8 +51,6 @@ def TaylorDiagram(RMSVEC, RMSDVEC, CORVEC,COLORVEC,LABELVEC, station, info):
     radius = np.arange(0.0,X[-1]+delta,delta)
     xangle = list(np.arange(0.0,0.9,0.10)) + [0.9, 0.95, 0.99]
     rdmax = np.amax(radius)
-    print radius
-    print rdmax
     for rd in radius:  
         for ang in xangle:
             ax.plot([0.0,rd*ang],[0.0,rd*math.sqrt(1.0 - (ang * ang))],color="0.5",ls="-",lw="0.10")
@@ -76,6 +70,7 @@ def TaylorDiagram(RMSVEC, RMSDVEC, CORVEC,COLORVEC,LABELVEC, station, info):
 
     ax.legend(numpoints=1,loc = 'best',prop=dict(size='small'),fontsize=12)
     ax.set_title(station+" "+info,fontsize="20")
+    print "creating "+"taylor"+station+".pdf"
     plt.savefig("taylor"+station+".pdf", bbox_inches='tight',dpi=300,facecolor='w',edgecolor='w',orientation='portrait')
     plt.close(1)
     #############################################
