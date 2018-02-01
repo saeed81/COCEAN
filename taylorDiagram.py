@@ -44,8 +44,10 @@ def TaylorDiagram(RMSVEC, RMSDVEC, CORVEC,COLORVEC,LABELVEC, station, info):
     ########################################
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
-    #ax.set_xlim(0.0,X[-1]+4.0*delta)
-    #ax.set_ylim(0.0,Y[-1]+4.0*delta)
+    #ax.set_xlim(0.0,X[-1]+delta/200.0)
+    #ax.set_ylim(0.0,Y[-1]+delta/200.0)
+    for axis in ['bottom','left']:
+        ax.spines[axis].set_linewidth(0.5)
     ax.yaxis.set_ticks_position('left')
     ax.xaxis.set_ticks_position('bottom')
     ############################################
