@@ -18,9 +18,10 @@ def TaylorDiagram(RMSVEC, RMSDVEC, CORVEC,COLORVEC,LABELVEC, station, info):
     hh = np.zeros((ny,nx),dtype=np.float32)
     h  = np.sqrt(XX * XX + YY * YY)
     hmax = np.amax(h)
+    hmax = X[-1] - delta
     hh[:,:] = -1.0
     hh = np.sqrt((XX-RMSVEC[0])*(XX-RMSVEC[0]) + YY * YY)
-    hh[h > X[-1] ] = -1.0
+    hh[h > hmax ] = -1.0
     hh=np.ma.masked_where(hh==-1.0,hh)
     ######################################################
     fig=plt.figure(num=1,figsize=(9.0,9.0),dpi=300,facecolor='w',edgecolor='k')
@@ -33,7 +34,7 @@ def TaylorDiagram(RMSVEC, RMSDVEC, CORVEC,COLORVEC,LABELVEC, station, info):
     crm=ax.contour(XX,YY,hh,vvc[::2],colors='lightgreen',linestyles="solid",linewidths=1.5)
     ax.clabel(crm,vvc[::2],inline=1,fontsize=12,colors='k',fmt='%.2f') 
     ############################################
-    vc=np.arange(0.0,X[-1]+delta,delta)
+    vc=np.arange(0.0,X[-1],delta)
     nl, = vc.shape
     lines=[]
     for i in range(nl-1):
@@ -41,14 +42,14 @@ def TaylorDiagram(RMSVEC, RMSDVEC, CORVEC,COLORVEC,LABELVEC, station, info):
     lines.append("solid")
     ax.contour(XX,YY,h,vc,colors='0.5',linestyles=lines,linewidths=0.2)
     ########################################
-    #ax.spines['top'].set_visible(False)
-    #ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
     #ax.set_xlim(0.0,X[-1]+4.0*delta)
     #ax.set_ylim(0.0,Y[-1]+4.0*delta)
     ax.yaxis.set_ticks_position('left')
     ax.xaxis.set_ticks_position('bottom')
     ############################################
-    radius = np.arange(0.0,X[-1]+delta,delta)
+    radius = np.arange(0.0,X[-1],delta)
     xangle = list(np.arange(0.0,0.9,0.10)) + [0.9, 0.95, 0.99]
     rdmax = np.amax(radius)
     for rd in radius:  
