@@ -5,6 +5,7 @@ import requests as req
 import matplotlib.pyplot as plt
 import json
 import datetime
+from scipy import stats
 from taylorDiagram import TaylorDiagram
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -52,11 +53,12 @@ def fillObs(date_obs,fromt, tot):
         if strDate(initd) not in date_obs: 
             dmiss[strDate(initd)] = {}
             dmcor[strDate(initd)] = {}
-            dmcor[strDate(initd)]["raw"] = -999.0
+            dmcor[strDate(initd)]["raw"] = -9999.0
             dmiss[strDate(initd)]["raw"] = np.nan
                         
         initd = initd + step
     return dmcor
+    #return dmiss
 
 def biasMean(vobs, vmodel):
     
@@ -65,6 +67,7 @@ def biasMean(vobs, vmodel):
         sys.exit()
     
     return np.mean(vobs- vmodel)
+    #return stats.nanmean(vobs- vmodel)
 
 
 def readConfig():
@@ -93,10 +96,14 @@ def readConfig():
     
 
 def readObs(server,station, startdate,enddate,obstyle):
-    if server["prod"]: param   = {'from': startdate, 'too': enddate}
-    if server["utv"]:param   = {'highfreq':'false','from': startdate, 'too': enddate}
-    if server["prod"]: res     = req.get("http://oceandata.smhi.se/ssh/"+station+"/OBSERVATION",params = param)
-    if server["utv"]:res     = req.get("http://oceandata-utv.smhi.se/ssh/"+station+"/OBSERVATION",params = param)
+    if server["prod"]:
+        print "prod server"
+        param   = {'from': startdate, 'too': enddate}
+        res     = req.get("http://oceandata.smhi.se/ssh/"+station+"/OBSERVATION",params = param)
+    if server["utv"]:
+        print "utv server"
+        param   = {'highfreq':'false','from': startdate, 'too': enddate}
+        res     = req.get("http://oceandata-utv.smhi.se/ssh/"+station+"/OBSERVATION",params = param)
     dobs    = res.json()
     date_obs = dobs.keys()
     dmiss = fillObs(date_obs,startdate, enddate)
@@ -106,7 +113,9 @@ def readObs(server,station, startdate,enddate,obstyle):
     voc   = pd.DataFrame.from_dict(dobs,orient="index")
     vobc  = voc.loc[startdate:enddate].values
     vobsc = np.squeeze(vobc)
-    vobsm = np.ma.masked_where(vobsc==-999.0,vobsc)
+    print vobsc 
+    vobsm = np.ma.masked_where(vobsc==-9999.0,vobsc)
+    print vobsm
     obstd  = np.std(vobsm)
     rms.append(round(obstd,3))
     cor.append(1.0)
