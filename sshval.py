@@ -192,8 +192,13 @@ def main():
     ax.set_ylabel ('SSH(m)',fontsize='20',weight='bold')
 
     for im in range(len(vssh)):
-        ax.plot(vssh[im],linestyle=cstyle[im],color=ccolor[im],lw=0.75)
+        if im == 0:
+            ax.plot(vssh[im],'o-',color=ccolor[im],ms=3)
+        else:
+            ax.plot(vssh[im],linestyle=cstyle[im],color=ccolor[im],lw=0.75)
 
+    print clegend
+    print ccolor
     ax.legend(clegend, numpoints=1, prop=dict(size='small'),loc="best")
     ax.grid()
     ax.set_title(station,fontsize="30")

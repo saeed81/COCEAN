@@ -73,8 +73,8 @@ def TaylorDiagram(RMSVEC, RMSDVEC, CORVEC,COLORVEC,LABELVEC, station, info):
 
     ax.legend(numpoints=1,loc = 'best',prop=dict(size='small'),fontsize=12)
     ax.set_title(station+" "+info,fontsize="20")
-    print "creating "+"taylor"+station+".pdf"
-    plt.savefig("taylor"+station+".pdf", bbox_inches='tight',dpi=300,facecolor='w',edgecolor='w',orientation='portrait')
+    print "creating "+"taylor"+station+".png"
+    plt.savefig("taylor"+station+".png", bbox_inches='tight',dpi=300,facecolor='w',edgecolor='w',orientation='portrait')
     plt.close(1)
     #############################################
 
