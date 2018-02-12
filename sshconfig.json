@@ -1,5 +1,5 @@
 {
-    "server": {"prod":1,"utv":0},
+    "server": {"prod":1, "utv":0},
     "dovalidation":{"experiment":1,"operational":1},
     "station"  :"simrishamn",
     "startdate":"2017-10-12 00:00",
