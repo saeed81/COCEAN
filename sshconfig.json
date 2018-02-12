@@ -1,11 +1,12 @@
 {
-    "server": {"prod":0,"utv":1},
+    "server": {"prod":1,"utv":0},
     "dovalidation":{"experiment":1,"operational":1},
-    "station"  :"landsort_sjov",
-    "startdate":"2017-02-01 00:00",
-    "endate"   :"2017-02-27 00:00",
+    "station"  :"simrishamn",
+    "startdate":"2017-10-12 00:00",
+    "endate"   :"2017-10-14 00:00",
     "obstyle":{"line":"-","color":"r"},
-    "experiment":{"NS01_GEBCO_hmin_6_long_validation":{"path":"ssh_gebco_hmin_6_feb.csv","line":"-","color":"b"},"NS01_GEBCO_hmin_4_long_validation":{"path":"ssh_gebco_hmin_4_feb.csv","line":"-","color":"yellow"}},
-    "operational":{"NS01_NEMO":{"title":"NS01_OPER","line":"-","color":"g"},"NS01_NEMO_C11":{"title":"NS01_C11","line":"-","color":"y"}},
-    "tickinterval_hour" : 24
+    "experiment":{"NS01_GEBCO_hmin_4_newbfr":{"path":"ssh_gebco_hmin_4_newbfr_alvin_2016_2017.csv","line":"-","color":"b"},"NS01_GEBCO_hmin_4_oldbfr_coldstart":{"path":"ssh_ns6_minh_4_correct_sss.csv","line":"-","color":"yellow"}, "NS01_GEBCO_hmin_4_newbfr_6h":{"path":"ssh_gebco_hmin_4_newbfr_6h_sep_oct.csv","line":"-","color":"k"}},
+    "operational":{"NS01_NEMO":{"title":"NS01_OPER","line":"-","color":"g"}},
+    "tickinterval_hour" : 2
 }
+
