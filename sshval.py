@@ -150,11 +150,11 @@ def readExpr(expname,station,startdate,enddate,vobsm):
         ccolor.append(expname[model]["color"]) 
         
 def readOper(server,oper,station,startdate,enddate,vobsm):
-    if server["prod"]:param   = {'from': startdate, 'too': enddate}
-    if server["utv"]: param   = {'highfreq':'false','from': startdate, 'too': enddate}
+    if server["prod"]:param= {'from': startdate, 'too': enddate}
+    if server["utv"]: param= {'highfreq':'false','from': startdate, 'too': enddate}
     for model in oper:
-        if server["prod"]:res1   = req.get("http://oceandata.smhi.se/ssh/"+station+"/"+model,params = param)
-        if server["utv"]:res1   = req.get("http://oceandata-utv.smhi.se/ssh/"+station+"/"+model,params = param)
+        if server["prod"]:res1= req.get("http://oceandata.smhi.se/ssh/"+station+"/"+model,params = param)
+        if server["utv"]:res1 = req.get("http://oceandata-utv.smhi.se/ssh/"+station+"/"+model,params = param)
         doper  = res1.json()
         vm     = pd.DataFrame.from_dict(doper,orient="index")
         voper  = vm["raw"].loc[startdate:enddate].values
