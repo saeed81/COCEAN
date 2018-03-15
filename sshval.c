@@ -3,7 +3,7 @@
 #include<math.h>
 #include"svgplot.h"
 
-#define LF 32
+#define LF 16
 
 long int numLines(FILE *FS){
   long int nl = 0L;
@@ -165,29 +165,27 @@ int main(int argc, char *argv[]){
   for(ii=0; ii < (nline-1);++ii){
     if (icontent[ii] == 0 ) break; 
   }
-
   for(ia=0; ia < (ii+1);++ia){
     if (icontent[ia] == idbeg) break; 
   }
-  
   for(ib=0; ib < (ii+1);++ib){
     if (icontent[ib] == idend) break; 
   }
 
-  printf("%d\t%ld\t%d\t%d\n",ii,(nline -1),ia,ib); 
-
+  //printf("%ld\t%d\t%d\t%d\n",(nline -1),ii,ia,ib); 
 
   for (int i=ia; i <= ib;++i){
     printf("%d\t%f\n",icontent[i],fcontent[i]);
   }
-
-
+  
+#if 0
+  
   float rmax = sfmax(fcontent,ii+1);
   float rmin = sfmin(fcontent,ii+1);
- 
-  //printf("%f\t%f\n",rmin,rmax); 
-  svgmeta svgm;                                                                                                                                                                                              
+  printf("%f\t%f\n",rmin,rmax);
   
+  svgmeta svgm;                                                                                                                                                                                              
+
   FILE * filsvg = svg_init(900, 600, 0.0,(float)(ii+1),rmin,rmax,"ssh.html",&svgm);
 
   float *xax = (float *) malloc(sizeof(float) *(ii+1));
@@ -199,6 +197,8 @@ int main(int argc, char *argv[]){
     svg_close(filsvg);                                                                                                                                                                                            
   }                                     
       
+#endif
+
   free(cfl);
   free(icontent);
   free(fcontent);
