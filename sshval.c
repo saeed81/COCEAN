@@ -35,7 +35,6 @@ int Strcmp(char *sa, char *sb){
     sa++;
     sb++;
   }
-  
   if (*sa == '\0'){
     return 1;
   }
@@ -66,7 +65,6 @@ int main(int argc, char *argv[]){
   }
 
   long int nline = numLines(FS);
-  
   char cc = ' ';
   char field[LF] ="";
   char ifield[LF] ="";
@@ -87,13 +85,10 @@ int main(int argc, char *argv[]){
   }
   //printf("number of fields is %d \n", nfl);
   rewind(FS);
-
   char **cfl = malloc(sizeof(char *)*nfl);  // each field is a array of character array
-  
   nfl = 0;
   nl  = 0;
   ne  = 0;
-
   while ((cc=fgetc(FS)) != EOF){
     if (cc != ','){
       if(cc=='\n'){
@@ -117,7 +112,7 @@ int main(int argc, char *argv[]){
 
   for(int ii=0; ii < (LF -1); ++ii) field[ii] = ' ';
 
-  //now we read date time;
+  //now we read content;
   ne = 0;
   nl = 0;
   int nit = 0;
@@ -188,10 +183,12 @@ int main(int argc, char *argv[]){
     printf("startdate %d is bigger than enddate %d \n", idbeg, idend);
     return 1;
   }
+  #if 0
   for (int i=ia; i <= ib;++i){
     printf("%d\t%f\n",icontent[i],fcontent[i]);
   }
   
+  #endif
 #if 0
   
   float rmax = sfmax(fcontent,ii+1);
@@ -212,7 +209,6 @@ int main(int argc, char *argv[]){
   }                                     
       
 #endif
-
   free(cfl);
   free(icontent);
   free(fcontent);
