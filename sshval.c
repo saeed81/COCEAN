@@ -3,7 +3,7 @@
 #include<math.h>
 #include"svgplot.h"
 
-#define LF 16
+#define LF (64)
 
 long int numLines(FILE *FS){
   long int nl = 0L;
@@ -47,7 +47,7 @@ int Strcmp(char *sa, char *sb){
 int main(int argc, char *argv[]){
     
   if (argc != 5){
-    printf("Usage %s filename (stationame)\n",argv[0]);
+    printf("Usage %s filename stationame startdate(YYYYMMDDHH) enddate(YYYYMMDDHH)\n",argv[0]);
     return 1;
   }
     
@@ -161,19 +161,33 @@ int main(int argc, char *argv[]){
   fclose(FS);
 
   int ii = 0;
-  int ia = 0, ib = 0;
-  for(ii=0; ii < (nline-1);++ii){
-    if (icontent[ii] == 0 ) break; 
+  int ia = -1, ib = -1;
+  for(int i=0; i < (nline-1);++i){
+    if (icontent[i] == 0 ){
+      ii = i;
+      break; 
+    }
   }
-  for(ia=0; ia < (ii+1);++ia){
-    if (icontent[ia] == idbeg) break; 
+  for(int i=0; i < (ii+1);++i){
+    if (icontent[i] == idbeg){
+      ia = i;
+      break; 
+    }
   }
-  for(ib=0; ib < (ii+1);++ib){
-    if (icontent[ib] == idend) break; 
+  for(int i=0; i < (ii+1);++i){
+    if (icontent[i] == idend){
+      ib = i;
+      break; 
+    }
   }
-
-  //printf("%ld\t%d\t%d\t%d\n",(nline -1),ii,ia,ib); 
-
+  if (ia == -1 || ib == -1){
+    printf("startdate %d or enddate %d do not exist in data\n", idbeg, idend);
+    return 1;
+  }
+  if (ia > ib ){
+    printf("startdate %d is bigger than enddate %d \n", idbeg, idend);
+    return 1;
+  }
   for (int i=ia; i <= ib;++i){
     printf("%d\t%f\n",icontent[i],fcontent[i]);
   }
