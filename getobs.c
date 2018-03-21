@@ -4,7 +4,10 @@
 #include <netinet/in.h> /* struct sockaddr_in, struct sockaddr */
 #include <netdb.h>      /* struct hostent, gethostbyname */
 #include"strcomp.h"      
-#define N (1024)
+#include"splitstring.h"      
+#include"strtoint.h"
+      
+#define N (2048)
 
 int main(int argc,char *argv[])
 {
@@ -79,26 +82,26 @@ int main(int argc,char *argv[])
 
   //received = 0;
   //bytes = 0;
-  do {
+  while((bytes = recv(sockfd, response, N, 0)) > 0){
     // HANDLE RESPONSE CHUCK HERE BY, FOR EXAMPLE, SAVING TO A FILE.
     //memset(response, 0, sizeof(response));
+    fprintf(fl,"%s",response);
     for (int i=0; i < N; ++i) {
-      response[i] = 0;
+      *(response+i) = 0;
     }
-    bytes = recv(sockfd, response, N-1, 0);
-    response[N-1] = 0;
-    if (bytes > 0 ){
+    //bytes = recv(sockfd, response, N-1, 0);
+    //if (bytes > 0 ){
     //   response[bytes] = '\0';
       //printf("%s", response);
 
-      fprintf(fl,"%s",response);
-    }
-    if (bytes < 0 )return 1;
-    if (bytes == 0)break;
+    //}
+    //if (bytes < 0 )return 1;
+    //if (bytes == 0)break;
     //received+=bytes;
     //printf("here \n");
-  } while(1); 
+  }; //while(1); 
 
+  //close(sockfd);
   //fclose(fl);
   
   //fl = fopen("output.dat","r");
@@ -119,14 +122,49 @@ int main(int argc,char *argv[])
     il += 1;
   }
   
-  printf("%s",content);
-  //close(sockfd);
-  printf("\n");
+  fclose(fl);
+
+  int ir = 0;
+
+  for (long int i=0L; i < numc;++i){
+    
+    if (content[i] == '\r') ir =i;
+  }
+
+  //printf("%c\n",content[ir]);
+  //printf("%c\n",content[ir+1]);
   
+  //for (int i=(ir+3); i < (numc-1);++i){
+  //  printf("%c",content[i]);
+  //}
+  printf("\n");
+
+  printf("%ld\n",numc - ir - 2);
+
+  char *st = &content[ir+3];
+
+  int icom = 0, iicom = 0; 
+  char **cout =split(st, ',', &icom);
+  char **ccout  = NULL;
+  for (int i=0; i < (icom); ++i){ 
+    ccout  = split(cout[i], ':', &iicom);
+    rtrim(ccout[2],'}');
+    ltrim(ccout[0],'\"');
+    rtrim(ccout[0],'\"');
+    printf("%d\t%s\n",stoi(ccout[0]),ccout[2]);
+    free(ccout);
+  }
+
+  free(content);
+  free(cout);
+
+  //printf("%s",content);
+  
+    
   /* process response */
   //printf("Response:\n%s\n",response);
 
-  fclose(fl);
+  
 
   return 0;
 }
