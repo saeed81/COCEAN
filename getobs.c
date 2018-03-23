@@ -5,18 +5,18 @@
 #include <netdb.h>      /* struct hostent, gethostbyname */
 #include"strcomp.h"      
 #include"splitstring.h"      
-#include"strtoint.h"
+#include"strtof.h"
       
-#define N (2048)
-
+#define N (4096)
+char response[N]  = {0};
 int main(int argc,char *argv[])
 {
   //http://oceandata.smhi.se/ssh/"+station+"/OBSERVATION",params = param
-  char response[N]  = {0};
+  
   int portno        = 80;
   char *host        = "oceandata.smhi.se";
   //char message[]   = "GET /ssh/viken/OBSERVATION?from=2017100100&too=2018032000 HTTP/1.1\r\nHost: oceandata.smhi.se\r\nConnection:close\r\n\r\n";
-  char message[]   = "GET /ssh/viken/OBSERVATION?from=2017100100&too=2018032000 HTTP/1.0\r\nHost: oceandata.smhi.se\r\n\r\n";
+  char message[]   = "GET /ssh/viken/OBSERVATION?from=2017010100&too=2018032000 HTTP/1.0\r\nHost: oceandata.smhi.se\r\n\r\n";
   int M = sizeof(message);
   //printf("%s\n",message);
   //printf("%d\n",M);
@@ -151,7 +151,8 @@ int main(int argc,char *argv[])
     rtrim(ccout[2],'}');
     ltrim(ccout[0],'\"');
     rtrim(ccout[0],'\"');
-    printf("%d\t%s\n",stoi(ccout[0]),ccout[2]);
+    //printf("%d\t%s\t%f\t%f\n",stoi(ccout[0]),ccout[2],atof(ccout[2]),stof(ccout[2]));
+    printf("%d\t%f\n",stoi(ccout[0]),stof(ccout[2]));
     free(ccout);
   }
 

@@ -14,7 +14,7 @@ char **split(char *st, char delim, int *NF){
       temp++;
     }
   }
-  *NF = (nc);
+  *NF = (nc+1);
   char **cout = NULL;
   int ni = 0;
   int nj = -1;
