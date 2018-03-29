@@ -1,5 +1,6 @@
 #include<stdio.h>
 #include<stdlib.h>
+#include<math.h>
 float sfmin(float *y, int N){
   float zm = y[0];
   for (int i=1; i < N; ++i){
@@ -20,9 +21,8 @@ void create_svg(int, float*, float*);
 
 int main(void){
 
-  float height= 492.0;
-  float width=761.0;
-  
+  float height= 600.0;
+  float width = 900.0;
   FILE *fin = fopen("barseback_ssh.dat","r");
 
   char c = 0;
@@ -46,10 +46,11 @@ int main(void){
   }
 
   float vmin = sfmin(ssh, nl), vmax = sfmax(ssh, nl); 
-  vmin -= (0.25*vmin);
-  vmax += (0.25*vmax);
-  vmin  = -0.4;
-  vmax  = 1.0;
+  
+  height -= 50.0;
+  width -= 50.0;
+  vmin += (0.2*vmin);
+  vmax += (0.2*vmax);
 
   printf("min is %f and max is %f \n", vmin,vmax);
   for (int i=0; i < nl; ++i){
@@ -57,15 +58,40 @@ int main(void){
     xa[i] = (width / (xa[nl-1] - xa[0]) )* xa[i] - ((width *xa[0]) / (xa[nl-1] - xa[0]));
   }
   
+  create_svg(nl,xa,ssh);
+
   #if 0
   for (int i=0; i < nl; ++i){
     printf("ssh[%d] %f\n",i,ssh[i]);
   }
-  #endif
-  create_svg(nl,xa,ssh);
+  
+  float PI  = 4.0*atan(1.0);                                                                                                                                                            
+  int   nx  = 100001;
+  float dx  = (2.0*PI)/(nx -1);                                                                                                                                                         
+  float *xx = (float*)malloc(nx *sizeof(float));                                                                                                                                      
+  float *yy = (float*)malloc(nx *sizeof(float));                                                                                                                                     
+  for (int i=0; i < nx;++i){                                                                                                                                                           
+  xx[i]  = i*dx;                                                                                                                                                                        
+  yy[i]  = sin(i*dx) * cos(i*dx);                                                                                                                                                       
+}                                
+
+  vmin = sfmin(yy, nx), vmax = sfmax(yy, nx); 
+  vmin += (0.2*vmin);
+  vmax += (0.2*vmax);
+  
+  for (int i=0; i < nx; ++i){
+  yy[i] = height-((height / (vmax - vmin)) * yy[i] - ((height *vmin) / (vmax - vmin)));
+  xx[i] = (width / (xx[nx-1] - xx[0]) )* xx[i] - ((width *xx[0]) / (xx[nx-1] - xx[0]));
+}
+  
+  create_svg(nx,xx,yy);
 
   free(ssh);
+  free(xa);
+  free(xx);
+  free(yy);
 
+  #endif
   fclose(fin);
 
   return 0;
@@ -77,7 +103,7 @@ void create_svg(int N, float *x, float *y){
   FILE *fin = fopen("obs.svg","w");
   fprintf(fin,"<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"no\"?>\n");
   fprintf(fin,"<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n");
-  fprintf(fin,"<svg height=\"492pt\" version=\"1.1\" viewBox=\"0 0 761 492\" width=\"761pt\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n");
+  fprintf(fin,"<svg height=\"600px\" version=\"1.1\" viewBox=\"0 0 900 600\" width=\"900px\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n");
   fprintf(fin,"<defs><style type=\"text/css\">*{stroke-linecap:square;stroke-linejoin:round;}</style></defs>");
   fprintf(fin,"<g id=\"line2d_1\"> <path d=\"\n");
   
@@ -90,7 +116,7 @@ void create_svg(int N, float *x, float *y){
       fprintf(fin,"L%f %f\n",x[i],y[i]);
     }
   }
-  fprintf(fin," style=\"fill:none;stroke:#0000ff;\"");
+  fprintf(fin," style=\"fill:none;stroke:#ff0000;\"");
   fprintf(fin,"/>\n");
   fprintf(fin,"</g>\n");
   fprintf(fin,"</svg>");

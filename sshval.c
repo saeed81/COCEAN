@@ -1,7 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<math.h>
-#include"svgplot.h"
+#include"sort.h"
 
 #define LF (64)
 
@@ -183,32 +183,10 @@ int main(int argc, char *argv[]){
     printf("startdate %d is bigger than enddate %d \n", idbeg, idend);
     return 1;
   }
-  #if 0
   for (int i=ia; i <= ib;++i){
     printf("%d\t%f\n",icontent[i],fcontent[i]);
   }
-  
-  #endif
-#if 0
-  
-  float rmax = sfmax(fcontent,ii+1);
-  float rmin = sfmin(fcontent,ii+1);
-  printf("%f\t%f\n",rmin,rmax);
-  
-  svgmeta svgm;                                                                                                                                                                                              
 
-  FILE * filsvg = svg_init(900, 600, 0.0,(float)(ii+1),rmin,rmax,"ssh.html",&svgm);
-
-  float *xax = (float *) malloc(sizeof(float) *(ii+1));
-
-  for (int i=0; i < (ii+1);++i) xax[i] = (float)(i);
-  
-  if ( filsvg != NULL){                                                                                                                                                                                        
-    svg_add(filsvg,xax,fcontent,(ii+1),&svgm);
-    svg_close(filsvg);                                                                                                                                                                                            
-  }                                     
-      
-#endif
   free(cfl);
   free(icontent);
   free(fcontent);

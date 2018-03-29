@@ -1,6 +1,6 @@
 #!/bin/bash
 
-iobs=0
+iobs=1
 isvg=1
 issh=1
 
