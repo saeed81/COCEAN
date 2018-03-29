@@ -17,7 +17,7 @@ int main(int argc,char *argv[])
   int portno        = 80;
   char *host        = "oceandata.smhi.se";
   //char message[]   = "GET /ssh/viken/OBSERVATION?from=2017100100&too=2018032000 HTTP/1.1\r\nHost: oceandata.smhi.se\r\nConnection:close\r\n\r\n";
-  char message[]   = "GET /ssh/goteborg/OBSERVATION?from=2017010100&too=2018032800 HTTP/1.0\r\nHost: oceandata.smhi.se\r\n\r\n";
+  char message[]   = "GET /ssh/goteborg/OBSERVATION?from=2017030100&too=2018030100 HTTP/1.0\r\nHost: oceandata.smhi.se\r\n\r\n";
   int M = sizeof(message);
   //printf("%s\n",message);
   //printf("%d\n",M);
@@ -146,35 +146,40 @@ int main(int argc,char *argv[])
 
   int icom = 0, iicom = 0; 
   char **cout =split(st, ',', &icom);
-  char **ccout  = NULL;
-  int   *atime = (int *)malloc(sizeof(int)*icom);
-  float *adata = (float *)malloc(sizeof(float)*icom);
+  if ( icom > 1){ 
+    char **ccout  = NULL;
+    int   *atime = (int *)malloc(sizeof(int)*icom);
+    float *adata = (float *)malloc(sizeof(float)*icom);
   
-  for (int i=0; i < (icom); ++i){ 
-    ccout  = split(cout[i], ':', &iicom);
-    rtrim(ccout[2],'}');
-    ltrim(ccout[0],'\"');
-    rtrim(ccout[0],'\"');
+    for (int i=0; i < (icom); ++i){ 
+      ccout  = split(cout[i], ':', &iicom);
+      rtrim(ccout[2],'}');
+      ltrim(ccout[0],'\"');
+      rtrim(ccout[0],'\"');
     //printf("%d\t%s\t%f\t%f\n",stoi(ccout[0]),ccout[2],atof(ccout[2]),stof(ccout[2]));
-    //printf("%d\t%f\n",stoi(ccout[0]) ,stof(ccout[2]));
-    atime[i] = stoi(ccout[0]);
-    adata[i] = stof(ccout[2]); 
-    free(ccout);
-  }
-
-  free(content);
-  free(cout);
-
+      //printf("%d\t%f\n",stoi(ccout[0]) ,stof(ccout[2]));
+      atime[i] = stoi(ccout[0]);
+      adata[i] = stof(ccout[2]); 
+      free(ccout);
+    }
+  
+  
+  #if sort
   sortfull(atime,adata,icom);
-
+#endif
+  
   for (int i=0; i < (icom); ++i){
     printf("%d\t%f\n",atime[i] ,adata[i]);
   }
 
   free(atime);
   free(adata);
+  }
   //printf("%s",content);
   
+  free(content);
+  free(cout);
+
     
   /* process response */
   //printf("Response:\n%s\n",response);

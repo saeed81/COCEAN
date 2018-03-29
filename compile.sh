@@ -10,7 +10,7 @@ if [ $issh -eq 1 ];then
 fi
 
 if [ $iobs -eq 1 ];then
-    gcc -o getobs -O2 -march=native -std=c99 -Wall -D_GNU_SOURCE getobs.c
+    gcc -o getobs -O2 -march=native -std=c99 -Wall -D_GNU_SOURCE -Dsort=1 getobs.c
 fi
 
 if [ $isvg -eq 1 ];then
