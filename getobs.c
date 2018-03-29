@@ -6,6 +6,7 @@
 #include"strcomp.h"      
 #include"splitstring.h"      
 #include"strtof.h"
+#include"sort.h"
       
 #define N (4096)
 char response[N]  = {0};
@@ -137,28 +138,41 @@ int main(int argc,char *argv[])
   //for (int i=(ir+3); i < (numc-1);++i){
   //  printf("%c",content[i]);
   //}
-  printf("\n");
+  //printf("\n");
 
-  printf("%ld\n",numc - ir - 2);
+  //printf("%ld\n",numc - ir - 2);
 
   char *st = &content[ir+3];
 
   int icom = 0, iicom = 0; 
   char **cout =split(st, ',', &icom);
   char **ccout  = NULL;
+  int   *atime = (int *)malloc(sizeof(int)*icom);
+  float *adata = (float *)malloc(sizeof(float)*icom);
+  
   for (int i=0; i < (icom); ++i){ 
     ccout  = split(cout[i], ':', &iicom);
     rtrim(ccout[2],'}');
     ltrim(ccout[0],'\"');
     rtrim(ccout[0],'\"');
     //printf("%d\t%s\t%f\t%f\n",stoi(ccout[0]),ccout[2],atof(ccout[2]),stof(ccout[2]));
-    printf("%d\t%f\n",stoi(ccout[0]),stof(ccout[2]));
+    //printf("%d\t%f\n",stoi(ccout[0]) ,stof(ccout[2]));
+    atime[i] = stoi(ccout[0]);
+    adata[i] = stof(ccout[2]); 
     free(ccout);
   }
 
   free(content);
   free(cout);
 
+  sortfull(atime,adata,icom);
+
+  for (int i=0; i < (icom); ++i){
+    printf("%d\t%f\n",atime[i] ,adata[i]);
+  }
+
+  free(atime);
+  free(adata);
   //printf("%s",content);
   
     
