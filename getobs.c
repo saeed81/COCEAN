@@ -164,8 +164,8 @@ int main(int argc,char *argv[])
     }
   
   
-  #if sort
-  sortfull(atime,adata,icom);
+#if sort
+    sortfull(atime,adata,icom);
 #endif
   
   for (int i=0; i < (icom); ++i){

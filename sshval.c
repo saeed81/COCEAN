@@ -5,6 +5,12 @@
 
 #define LF (64)
 
+typedef struct Data{
+  int   *icontent;
+  float *fcontent;
+}Data;
+
+
 long int numLines(FILE *FS){
   long int nl = 0L;
   int c = 0;
@@ -43,19 +49,7 @@ int Strcmp(char *sa, char *sb){
   }
 }
 
-int main(int argc, char *argv[]){
-    
-  if (argc != 5){
-    printf("Usage %s filename stationame startdate(YYYYMMDDHH) enddate(YYYYMMDDHH)\n",argv[0]);
-    return 1;
-  }
-    
-  char *filename = argv[1];
-  char *station  = argv[2];
-  char *datebeg  = argv[3];
-  char *datend   = argv[4];
-  int idbeg = atoi(datebeg);
-  int idend = atoi(datend);
+int Readsshcsv(char *filename, char *station, int idbeg, int idend, Data *sshdata){
 
   FILE *FS = NULL;
   FS = fopen(filename,"r");
@@ -117,14 +111,14 @@ int main(int argc, char *argv[]){
   nl = 0;
   int nit = 0;
   int ifld = 0;
-  int *icontent = NULL;
-  float *fcontent = NULL;
+  sshdata->icontent = NULL;
+  sshdata->fcontent = NULL;
   int ic = 0;
   for (int i=0; i < nfl; ++i){
     if (Strcmp(cfl[i],station)){
       ic = i;
-      icontent = malloc(sizeof(int) *(nline -1));
-      fcontent = malloc(sizeof(float) *(nline -1));
+      sshdata->icontent = malloc(sizeof(int) *(nline -1));
+      sshdata->fcontent = malloc(sizeof(float) *(nline -1));
       while ((cc=fgetc(FS)) != EOF){
 	if (cc != ','){
 	  if(cc=='\n'){
@@ -139,8 +133,8 @@ int main(int argc, char *argv[]){
 	  }
 	}
 	else{
-	  if (ifld == 0)  icontent[nl] = atoi(ifield);
-	  if (ic == ifld )fcontent[nl] = atof(field);
+	  if (ifld == 0)  sshdata->icontent[nl] = atoi(ifield);
+	  if (ic == ifld )sshdata->fcontent[nl] = atof(field);
 	  ifld += 1;
 	  ne=0;
 	}
@@ -148,29 +142,29 @@ int main(int argc, char *argv[]){
     }
   }
   
-  if (icontent == NULL || fcontent == NULL){ 
+  if (sshdata->icontent == NULL || sshdata->fcontent == NULL){ 
     printf("something went wrong. Perhaps the station %s is not in the csv file %s\n",station,filename);
-    return 1;
     fclose(FS);
+    return 1;
   }
   fclose(FS);
 
   int ii = 0;
   int ia = -1, ib = -1;
   for(int i=0; i < (nline-1);++i){
-    if (icontent[i] == 0 ){
+    if (sshdata->icontent[i] == 0 ){
       ii = i;
       break; 
     }
   }
   for(int i=0; i < (ii+1);++i){
-    if (icontent[i] == idbeg){
+    if (sshdata->icontent[i] == idbeg){
       ia = i;
       break; 
     }
   }
   for(int i=0; i < (ii+1);++i){
-    if (icontent[i] == idend){
+    if (sshdata->icontent[i] == idend){
       ib = i;
       break; 
     }
@@ -184,12 +178,35 @@ int main(int argc, char *argv[]){
     return 1;
   }
   for (int i=ia; i <= ib;++i){
-    printf("%d\t%f\n",icontent[i],fcontent[i]);
+    printf("%d\t%f\n",sshdata->icontent[i],sshdata->fcontent[i]);
   }
 
   free(cfl);
-  free(icontent);
-  free(fcontent);
+  
+  return 0;
+}
+
+
+
+int main(int argc, char *argv[]){
+    
+  if (argc != 5){
+    printf("Usage %s filename stationame startdate(YYYYMMDDHH) enddate(YYYYMMDDHH)\n",argv[0]);
+    return 1;
+  }
+    
+  char *filename = argv[1];
+  char *station  = argv[2];
+  char *datebeg  = argv[3];
+  char *datend   = argv[4];
+  int idbeg      = atoi(datebeg);
+  int idend      = atoi(datend);
+
+  Data sshdata = {NULL, NULL};
+  Readsshcsv(filename, station, idbeg, idend, &sshdata);
+
+  free(sshdata.icontent);
+  free(sshdata.fcontent);
     
   return 0;
 }

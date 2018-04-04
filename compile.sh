@@ -1,8 +1,8 @@
 #!/bin/bash
-
-iobs=1
-isvg=1
 issh=1
+iobs=0
+isvg=0
+
 
 
 if [ $issh -eq 1 ];then

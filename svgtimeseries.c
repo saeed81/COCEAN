@@ -48,7 +48,7 @@ int main(void){
   float vmin = sfmin(ssh, nl), vmax = sfmax(ssh, nl); 
   
   height -= 50.0;
-  width -= 50.0;
+  width  -= 50.0;
   vmin += (0.2*vmin);
   vmax += (0.2*vmax);
 
