@@ -205,8 +205,8 @@ int main(int argc, char *argv[]){
   Data sshdata = {NULL, NULL};
   Readsshcsv(filename, station, idbeg, idend, &sshdata);
 
-  free(sshdata.icontent);
-  free(sshdata.fcontent);
+  if (sshdata.icontent != NULL)free(sshdata.icontent);
+  if (sshdata.fcontent != NULL)free(sshdata.fcontent);
     
   return 0;
 }
