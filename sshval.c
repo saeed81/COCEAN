@@ -49,7 +49,7 @@ int Strcmp(char *sa, char *sb){
   }
 }
 
-int Readsshcsv(char *filename, char *station, int idbeg, int idend, Data *sshdata){
+static int Readsshcsv(char *filename, char *station, int idbeg, int idend, Data *sshdata){
 
   FILE *FS = NULL;
   FS = fopen(filename,"r");

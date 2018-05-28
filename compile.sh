@@ -1,7 +1,7 @@
 #!/bin/bash
-issh=1
+issh=0
 iobs=0
-isvg=0
+isvg=1
 
 
 
