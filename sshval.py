@@ -61,7 +61,8 @@ def fillObs(date_obs,fromt, tot):
     #return dmiss
 
 def biasMean(vobs, vmodel):
-    
+    print "vobsshape",vobs.shape
+    print "vmodelshape",vmodel.shape
     if vobs.shape[0] != vmodel.shape[0] :
         print "vobs and vmodel should have the same size"
         sys.exit()
@@ -82,7 +83,10 @@ def readConfig():
         sys.exit(1)
 
     with open(config_file, 'r') as fptr_cfg:
+        print fptr_cfg
+        print "here"
         cfg = json.load(fptr_cfg)
+        print "here"
         server       = cfg["server"]
         dovalidation = cfg["dovalidation"]
         station      = cfg["station"]
@@ -92,6 +96,8 @@ def readConfig():
         expname      = cfg["experiment"]
         oper         = cfg["operational"]
         tickint      = cfg["tickinterval_hour"]
+        print server
+        print oper
         return server,dovalidation, station, startdate, enddate,obstyle, expname, oper, tickint 
     
 
@@ -152,12 +158,18 @@ def readExpr(expname,station,startdate,enddate,vobsm):
 def readOper(server,oper,station,startdate,enddate,vobsm):
     if server["prod"]:param= {'from': startdate, 'too': enddate}
     if server["utv"]: param= {'highfreq':'false','from': startdate, 'too': enddate}
+
     for model in oper:
         if server["prod"]:res1= req.get("http://oceandata.smhi.se/ssh/"+station+"/"+model,params = param)
         if server["utv"]:res1 = req.get("http://oceandata-utv.smhi.se/ssh/"+station+"/"+model,params = param)
         doper  = res1.json()
+        date_obs = doper.keys()
+        dmiss = fillObs(date_obs,startdate, enddate)
+        if dmiss.keys():
+            doper.update(dmiss)
         vm     = pd.DataFrame.from_dict(doper,orient="index")
         voper  = vm["raw"].loc[startdate:enddate].values
+        print "model ", model, len(voper)
         voper  = voper + biasMean(vobsm,voper)
         lcorr  = np.ma.corrcoef(voper, vobsm)[0,1]
         lrms   = np.sqrt(np.mean((voper - vobsm)**2),dtype=np.float64)
@@ -193,7 +205,7 @@ def main():
 
     for im in range(len(vssh)):
         if im == 0:
-            ax.plot(vssh[im],'o-',color=ccolor[im],ms=3)
+            ax.plot(vssh[im],'o-',color=ccolor[im],ms=2)
         else:
             ax.plot(vssh[im],linestyle=cstyle[im],color=ccolor[im],lw=0.75)
 
